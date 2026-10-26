@@ -1,0 +1,18 @@
+services:
+  hub:
+    build:
+      context: ../..
+      dockerfile: packages/hub/Dockerfile
+    image: agent-deck-hub:latest
+    container_name: agent-deck-hub
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      # Öffentlicher Listener; der NetBird-Reverse-Proxy leitet die Hub-Subdomain hierher.
+      - "${HUB_PUBLISH_PORT:-8787}:8787"
+    volumes:
+      # Benanntes Volume: gehört automatisch dem non-root-User "node" im Container.
+      - hub-data:/data
+
+volumes:
+  hub-data:

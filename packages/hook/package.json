@@ -1,0 +1,12 @@
+{
+  "name": "@agent-deck/hook",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "*.sh"
+  ],
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}
