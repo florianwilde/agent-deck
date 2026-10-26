@@ -17,7 +17,39 @@ Platzhalter in dieser Anleitung:
 
 ## 1. Hub im Homelab starten
 
-Auf dem Docker-Host (Proxmox-VM/LXC mit Docker und Docker Compose v2):
+Zwei Wege, beide ergeben denselben Hub. Variante A ist die einfachere.
+
+### Variante A: Proxmox-LXC per Helper-Skript (empfohlen)
+
+Wie bei community-scripts.org: In der **Shell des Proxmox-Hosts** (Web-UI → Node → Shell, als root) ausführen:
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/florianwilde/agent-deck/main/tools/proxmox/agent-deck-hub.sh)"
+```
+
+> Das Skript liegt erst nach dem Merge des Phase-0-A-PRs auf `main`. Den PR kannst du gefahrlos zuerst mergen: Ohne `AGENT_DECK_URL` tut der Hook nichts. Zum Testen vor dem Merge den Branch angeben und das Skript von dort laden:
+> `AGENT_DECK_BRANCH=<branch> bash -c "$(curl -fsSL https://raw.githubusercontent.com/florianwilde/agent-deck/<branch>/tools/proxmox/agent-deck-hub.sh)"`
+
+Das Skript
+
+1. fragt **Standard** (1 CPU, 512 MB RAM, 4 GB Disk, DHCP auf `vmbr0`) oder **Erweitert** ab. Unter Erweitert lassen sich CT-ID, Hostname, Ressourcen, statische IP, VLAN, Port und Branch einstellen, außerdem optional der NetBird-Client im Container.
+2. lädt das neueste Debian-13-Template (Fallback Debian 12) und legt einen **unprivilegierten** LXC mit Autostart an,
+3. installiert darin Node.js 24 (NodeSource), klont das Repo nach `/opt/agent-deck` und baut den Hub,
+4. erzeugt `/etc/agent-deck/hub.env` mit `HUB_MODE=capture` und einem frischen Token (`openssl rand -hex 32`),
+5. richtet den systemd-Dienst `agent-deck-hub` ein (läuft als User `agentdeck`, Daten in `/var/lib/agent-deck`),
+6. zeigt am Ende **IP, Port und Token** an.
+
+Den Token später erneut anzeigen: `pct exec <CTID> -- agent-deck-hub token`. Ein Update holst du mit `pct exec <CTID> -- update`, im Container genügt `update`. Logs: `journalctl -u agent-deck-hub -f`. Ohne Dialoge, mit Standardwerten: `AGENT_DECK_DEFAULTS=1` voranstellen.
+
+Prüfen (im Container oder aus dem LAN mit `<IP>` statt `localhost`):
+
+```bash
+curl -s http://localhost:8787/health      # {"ok":true,"mode":"capture"}
+```
+
+### Variante B: Docker Compose
+
+Auf einem Docker-Host (Proxmox-VM/LXC mit Docker und Docker Compose v2):
 
 ```bash
 git clone https://github.com/florianwilde/agent-deck.git
@@ -49,7 +81,9 @@ Die Daten liegen im Docker-Volume `hub_hub-data` (SQLite unter `/data/agent-deck
 Im NetBird-Dashboard einen Reverse-Proxy-Dienst für die Subdomain anlegen:
 
 1. **Domain:** `hub.example.de` (DNS-Eintrag zeigt auf den NetBird-Proxy, TLS-Zertifikat automatisch).
-2. **Ziel:** der NetBird-Peer des Docker-Hosts, Port `8787` (bzw. `HUB_PUBLISH_PORT`), Protokoll HTTP.
+2. **Ziel:** der Hub, Port `8787` (bzw. `HUB_PUBLISH_PORT`), Protokoll HTTP. Dafür gibt es zwei Möglichkeiten:
+   - Der Hub ist selbst ein NetBird-Peer. Bei Variante A geht das über die Option „NetBird-Client im Container“ mit Setup-Key, bei Variante B über den Docker-Host.
+   - Ein vorhandener NetBird-Routing-Peer im LAN leitet zur LAN-IP des Hubs weiter.
 3. **Zugriff:** öffentlich (ohne NetBird-Login/SSO vor dem Dienst), denn die Cloud-Sessions sind keine NetBird-Peers. Die Authentifizierung macht der Hub per Bearer-Token.
 4. Falls der Proxy einen Header wie `X-Forwarded-For` setzt: gut, der Hub wertet ihn aus (`trustProxy`) und speichert ihn mit.
 
@@ -146,6 +180,14 @@ Gib dabei gern Session-URL und Uhrzeiten aus Schritt 5 mit. Die Teil-B-Session k
 ## 7. Nach Teil B aufräumen
 
 Die Capture-Daten enthalten Prompts und Code. Wenn Teil B fertig ist:
+
+Variante A (LXC, der Container bleibt für Phase 1 erhalten):
+
+```bash
+pct exec <CTID> -- bash -c 'systemctl stop agent-deck-hub && rm -f /var/lib/agent-deck/agent-deck.db* && systemctl start agent-deck-hub'
+```
+
+Variante B (Docker):
 
 ```bash
 cd agent-deck/packages/hub

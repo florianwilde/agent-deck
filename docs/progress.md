@@ -17,13 +17,14 @@
   - Funktioniert mit und ohne `jq` (`tool` sagt, welcher Weg lief).
 - Dieses Repo: `.claude/settings.json` und `.claude/hooks/agent-deck-capture.sh` registrieren den Hook für 31 Events.
 - Tests (23): Hub-Endpunkte, Token, Body-Limit, `since`-Filter, Config. Hook gegen einen Fake-Server mit und ohne `jq`: Filterung, kein Request lokal, Timeout bei hängendem Hub. Dazu ein Konsistenztest für `.claude/settings.json`.
+- `tools/proxmox/agent-deck-hub.sh` ist ein Proxmox-Helper im Stil von community-scripts.org. Es legt einen unprivilegierten Debian-13-LXC an und installiert den Hub darin ohne Docker, mit Node.js 24 und dem systemd-Dienst `agent-deck-hub`. Es erzeugt den Token und bringt `update` mit. Die Prüfung läuft über `pnpm lint:sh` (shellcheck). Was getestet wurde und was nicht, steht in `tools/proxmox/README.md`.
 - `docs/setup-phase-0.md` mit der Anleitung für Hub, NetBird, Cloud-Umgebung und Testablauf.
 
 ### Was du (Florian) jetzt tun musst
 
 Alles steht in [`docs/setup-phase-0.md`](setup-phase-0.md):
 
-1. Hub per `docker compose` im Homelab starten.
+1. Hub im Homelab starten, entweder per Proxmox-Helper (Variante A) oder per `docker compose` (Variante B).
 2. NetBird-Reverse-Proxy für die Subdomain anlegen, öffentlich erreichbar.
 3. Cloud-Umgebung einstellen: Custom-Netzwerk, Network Secret, `AGENT_DECK_URL`.
 4. Diesen PR mergen.

@@ -12,7 +12,8 @@
     "typecheck": "pnpm -r typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "lint:sh": "shellcheck packages/hook/*.sh tools/proxmox/*.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
