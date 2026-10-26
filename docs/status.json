@@ -308,7 +308,7 @@
       "task": "Test: Frage → needs_input, Ende → done",
       "owner": "Florian",
       "status": "offen",
-      "note": "done live bestätigt; needs_input zeigt Phase 2 an der Taste",
+      "note": "done live bestätigt; needs_input am Gerät mit Phase 2 testen",
       "link": ""
     },
     {
@@ -327,8 +327,8 @@
       "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
       "task": "Renderer aus keys.js portieren",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "byte-gleich zu keys.js, 77 Snapshot-Tests, Preview-Screenshot",
       "link": ""
     },
     {
@@ -337,8 +337,8 @@
       "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
       "task": "Hub-Verbindung im Plugin",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "WS mit Token, Backoff 1→30 s, gegen echten Hub getestet",
       "link": ""
     },
     {
@@ -347,8 +347,8 @@
       "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
       "task": "Aktion Projekt-Slot und Property Inspector",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "Auto/Fest/Position, Kurz-/Langdruck, sdpi-components lokal",
       "link": ""
     },
     {
@@ -357,8 +357,8 @@
       "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
       "task": "Plugin packen (.streamDeckPlugin)",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "Release per Workflow und Tag plugin-v0.1.0",
       "link": ""
     },
     {
@@ -366,6 +366,46 @@
       "phase": "2",
       "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
       "task": "Am Stream Deck XL unter Windows testen",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "Rot bei Frage, Gelb bei fertig, Druck öffnet, Langdruck quittiert, Claude-App testen",
+      "link": ""
+    },
+    {
+      "id": "2-06",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "setup-plugin.md",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "Installation, 24 Slots auf dem XL, Fehlersuche",
+      "link": ""
+    },
+    {
+      "id": "2-07",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Hub: WebSockets beim Beenden schließen",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "preClose statt onClose, sonst hängt der Neustart",
+      "link": ""
+    },
+    {
+      "id": "2-08",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Pull Request öffnen",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "2-09",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "PR mergen",
       "owner": "Florian",
       "status": "offen",
       "note": "",

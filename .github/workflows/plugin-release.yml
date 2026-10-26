@@ -1,0 +1,44 @@
+# Baut das Stream-Deck-Plugin und hängt die .streamDeckPlugin-Datei an ein GitHub-Release.
+# Auslöser: Tag `plugin-v<version>` (z. B. plugin-v0.1.0) oder manuell.
+name: plugin-release
+
+on:
+  push:
+    tags: ["plugin-v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release-Tag (z. B. plugin-v0.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter "@agent-deck/streamdeck-plugin..."
+      - run: pnpm --filter @agent-deck/streamdeck-plugin typecheck
+      - run: pnpm exec vitest run packages/streamdeck-plugin/test/render.test.ts packages/streamdeck-plugin/test/slots.test.ts packages/streamdeck-plugin/test/deck.test.ts
+      - run: pnpm --filter @agent-deck/streamdeck-plugin run package
+      - name: Release anlegen bzw. Datei ersetzen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FILE=packages/streamdeck-plugin/dist/de.wildeflorian.agentdeck.streamDeckPlugin
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$FILE" --clobber
+          else
+            gh release create "$TAG" "$FILE" --prerelease --target "$GITHUB_SHA" \
+              --title "agent-deck Stream-Deck-Plugin ${TAG#plugin-v}" \
+              --notes "Doppelklick auf de.wildeflorian.agentdeck.streamDeckPlugin installiert das Plugin. Anleitung: docs/setup-plugin.md"
+          fi
