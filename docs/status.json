@@ -117,8 +117,8 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "NetBird-Reverse-Proxy für die Hub-Subdomain",
       "owner": "Florian",
-      "status": "in Arbeit",
-      "note": "agent-deck-hub.wilde-server.de: von außen schlägt der TLS-Handshake fehl (wie bei einer nicht angelegten Subdomain)",
+      "status": "fertig",
+      "note": "agent-deck-hub.wilde-server.de: /health 200, ohne Token 401",
       "link": ""
     },
     {
