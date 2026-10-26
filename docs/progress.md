@@ -1,5 +1,7 @@
 # Fortschritt
 
+Übersichtsseite: <https://claude.ai/artifact/WA2WWawMhNSggxxLnE1Ef8>. Die Daten dafür stehen in `docs/status.json`. Jede Session aktualisiert sie nach ihren Arbeitsschritten, lädt die Datei als Asset der Seite hoch und trägt die neue Asset-URL im Datensatz `tasks` ein.
+
 ## Phase 0 A – Capture-Server und Test-Hook ✅ (PR offen)
 
 ### Fertig
