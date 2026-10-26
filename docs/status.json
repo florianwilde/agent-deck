@@ -107,8 +107,8 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "Hub im Homelab starten",
       "owner": "Florian",
-      "status": "offen",
-      "note": "Proxmox-Helper erneut ausführen; der 404 kam vom noch nicht gemergten PR",
+      "status": "fertig",
+      "note": "läuft im Proxmox-LXC",
       "link": ""
     },
     {
@@ -117,8 +117,8 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "NetBird-Reverse-Proxy für die Hub-Subdomain",
       "owner": "Florian",
-      "status": "offen",
-      "note": "öffentlich erreichbar, Ziel Port 8787",
+      "status": "in Arbeit",
+      "note": "agent-deck-hub.wilde-server.de: von außen schlägt der TLS-Handshake fehl (wie bei einer nicht angelegten Subdomain)",
       "link": ""
     },
     {
