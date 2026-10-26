@@ -1,0 +1,3 @@
+# Build-Ausgabe des Plugins
+*.sdPlugin/bin/
+*.sdPlugin/logs/

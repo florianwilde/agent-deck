@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "agent-deck",
+  "Version": "0.1.0.0",
+  "Author": "Florian Wilde",
+  "Description": "Zeigt Claude-Code-Cloud-Sessions als Tasten mit Live-Status. Ein Druck öffnet die Session.",
+  "UUID": "de.wildeflorian.agentdeck",
+  "URL": "https://github.com/florianwilde/agent-deck",
+  "Category": "agent-deck",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "Icon": "imgs/plugin/marketplace",
+  "CodePath": "bin/plugin.js",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.1"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "24",
+    "Debug": "disabled"
+  },
+  "Actions": [
+    {
+      "Name": "Projekt-Slot",
+      "UUID": "de.wildeflorian.agentdeck.slot",
+      "Icon": "imgs/actions/slot/icon",
+      "Tooltip": "Zeigt eine Cloud-Session mit Live-Status. Drücken öffnet die Session, lang drücken quittiert.",
+      "PropertyInspectorPath": "ui/slot.html",
+      "Controllers": ["Keypad"],
+      "SupportedInMultiActions": false,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/slot/key",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ]
+}

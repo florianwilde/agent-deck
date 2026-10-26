@@ -1,0 +1,119 @@
+/* Ergänzungen zu sdpi-components – Farben und Maße wie dort (9pt, Labelspalte 95px, Feld 241px). */
+:root {
+  --font: "Segoe UI", Arial, Roboto, Helvetica, sans-serif;
+  --text: #d8d8d8;
+  --muted: #969696;
+  --field: #3d3d3d;
+  --line: #3d3d3d;
+  --green: #30a46c;
+  --yellow: #f5b83d;
+  --red: #e5484d;
+  --grey: #5b6470;
+}
+
+body {
+  background-color: #2d2d2d;
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 9pt;
+  margin: 0;
+  padding: 10px 0;
+}
+
+/* Abschnittsüberschrift mit farbigem Punkt */
+.section {
+  align-items: center;
+  color: var(--text);
+  display: flex;
+  font-size: 9pt;
+  font-weight: 600;
+  gap: 8px;
+  margin: 4px 0 12px 10px;
+}
+
+.dot {
+  background-color: var(--grey);
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+  height: 8px;
+  width: 8px;
+}
+
+.dot-slot {
+  background-color: var(--yellow);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 12px 10px;
+}
+
+/* Hinweistext unter einem Feld, bündig mit der Feldspalte */
+.hint {
+  color: var(--muted);
+  font-size: 8pt;
+  margin: -6px 0 10px 95px;
+  max-width: 241px;
+}
+
+/* Statuszeile, sieht aus wie ein Feld */
+.status {
+  align-items: center;
+  background-color: var(--field);
+  box-sizing: border-box;
+  color: var(--text);
+  display: flex;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 8px;
+}
+
+.status-extra {
+  margin-left: -2px;
+}
+
+[data-state="connected"] .dot,
+.dot[data-state="connected"] {
+  background-color: var(--green);
+}
+[data-state="connected"] .status-label {
+  color: var(--green);
+}
+[data-state="connecting"] .dot,
+.dot[data-state="connecting"] {
+  background-color: var(--yellow);
+}
+[data-state="connecting"] .status-label {
+  color: var(--yellow);
+}
+[data-state="disconnected"] .dot,
+.dot[data-state="disconnected"] {
+  background-color: var(--red);
+}
+[data-state="disconnected"] .status-label {
+  color: var(--red);
+}
+
+/* Buttons untereinander, Rückmeldung jeweils darunter */
+.buttons {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feedback {
+  font-size: 8pt;
+  min-height: 1em;
+}
+.feedback.ok {
+  color: var(--green);
+}
+.feedback.err {
+  color: var(--red);
+}
+.feedback:empty {
+  display: none;
+}
