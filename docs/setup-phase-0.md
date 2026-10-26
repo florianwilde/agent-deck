@@ -28,7 +28,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/florianwilde/agent-deck/
 ```
 
 > Das Skript liegt erst nach dem Merge des Phase-0-A-PRs auf `main`. Den PR kannst du gefahrlos zuerst mergen: Ohne `AGENT_DECK_URL` tut der Hook nichts. Zum Testen vor dem Merge den Branch angeben und das Skript von dort laden:
-> `AGENT_DECK_BRANCH=<branch> bash -c "$(curl -fsSL https://raw.githubusercontent.com/florianwilde/agent-deck/<branch>/tools/proxmox/agent-deck-hub.sh)"`
+> `AGENT_DECK_BRANCH=<branch> bash -c "$(curl -fsSL https://raw.githubusercontent.com/florianwilde/agent-deck/refs/heads/<branch>/tools/proxmox/agent-deck-hub.sh)"`
 
 Das Skript
 
