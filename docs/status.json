@@ -397,9 +397,9 @@
       "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
       "task": "Pull Request öffnen",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
-      "link": ""
+      "status": "fertig",
+      "note": "PR #5, 297 Tests grün",
+      "link": "https://github.com/florianwilde/agent-deck/pull/5"
     },
     {
       "id": "2-09",
@@ -409,7 +409,7 @@
       "owner": "Florian",
       "status": "offen",
       "note": "",
-      "link": ""
+      "link": "https://github.com/florianwilde/agent-deck/pull/5"
     },
     {
       "id": "3-01",
