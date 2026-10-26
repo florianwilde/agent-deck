@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint:sh": "shellcheck packages/hook/*.sh tools/proxmox/*.sh"
+    "lint:sh": "LC_ALL=C.UTF-8 shellcheck packages/hook/*.sh tools/proxmox/*.sh",
+    "agent-deck": "node --conditions=source packages/cli/src/index.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
