@@ -42,7 +42,7 @@ pct exec <CTID> -- bash /opt/agent-deck/tools/proxmox/agent-deck-hub.sh normal
 VPN-Token anzeigen (für das Plugin in Phase 2):
 
 ```bash
-pct exec <CTID> -- agent-deck-hub vpn-token
+pct exec <CTID> -- /usr/local/sbin/agent-deck-hub vpn-token
 ```
 
 Neue Installationen über den Helper starten direkt im Normalbetrieb mit beiden Tokens.
@@ -82,6 +82,8 @@ curl -s http://<HUB_IP>:8788/health                                  # {"ok":tru
 curl -s http://<HUB_IP>:8788/state -H "Authorization: Bearer <VPN_TOKEN>"   # {"sessions":[…]}
 curl -s -o /dev/null -w '%{http_code}\n' http://<HUB_IP>:8788/state  # 401
 ```
+
+Unter Windows in PowerShell `curl.exe` statt `curl` schreiben, sonst greift der Alias `Invoke-WebRequest` mit anderer Syntax.
 
 Logs: `journalctl -u agent-deck-hub -f` (Variante A) bzw. `docker compose logs -f` (Variante B). Liegen noch Capture-Daten in der Datenbank, steht dort beim Start eine Warnung, siehe Schritt 3.
 

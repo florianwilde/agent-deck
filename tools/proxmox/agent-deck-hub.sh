@@ -226,6 +226,12 @@ ct_install_helper() {
   fi
   printf '#!/bin/sh\nexec /usr/local/sbin/agent-deck-hub update "$@"\n' >/usr/bin/update
   chmod 0755 /usr/bin/update
+  ct_link_helper
+}
+
+# /usr/local/sbin fehlt in manchen Shells im PATH (z. B. "pct enter").
+ct_link_helper() {
+  ln -sf /usr/local/sbin/agent-deck-hub /usr/local/bin/agent-deck-hub
 }
 
 ct_install() {
@@ -280,6 +286,7 @@ ct_refresh_helper() {
     AGENT_DECK_PORT="$HUB_PORT" AGENT_DECK_VPN_PORT="$HUB_VPN_PORT" \
     bash -c 'source "$1" && render_ct_script' _ "$script" >"$tmp"; then
     install -m 0755 "$tmp" /usr/local/sbin/agent-deck-hub
+    ct_link_helper
     msg_ok "Helfer aktualisiert"
   else
     msg_warn "Helfer nicht aktualisiert"
@@ -492,7 +499,7 @@ render_ct_script() {
   # shellcheck disable=SC2016 # bewusst wörtlich: wird erst im Container ausgewertet
   printf 'NETBIRD_SETUP_KEY="${NETBIRD_SETUP_KEY:-}"\n'
   declare -f msg_info msg_ok msg_warn msg_error die \
-    ct_has_systemd ct_install_packages ct_build ct_write_env ct_set_env ct_normal ct_refresh_helper \
+    ct_has_systemd ct_install_packages ct_build ct_write_env ct_set_env ct_normal ct_refresh_helper ct_link_helper \
     ct_write_service ct_wait_healthy \
     ct_restart ct_install_netbird ct_install_helper ct_install ct_update ct_main
   # shellcheck disable=SC2016
