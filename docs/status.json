@@ -1,0 +1,405 @@
+{
+  "updated": "2026-10-26",
+  "rows": [
+    {
+      "id": "0A-01",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Aktuelle Doku lesen (Hooks, Cloud-Umgebungen)",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "33 Hook-Events, Network Secrets, CLAUDE_CODE_REMOTE_SESSION_ID",
+      "link": ""
+    },
+    {
+      "id": "0A-02",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Monorepo-Gerüst (pnpm, TypeScript, vitest, ESLint)",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "0A-03",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Hub im Capture-Modus mit Docker-Setup",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "POST /events, GET /capture, GET /health",
+      "link": ""
+    },
+    {
+      "id": "0A-04",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Capture-Hook agent-deck-capture.sh",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "läuft mit und ohne jq",
+      "link": ""
+    },
+    {
+      "id": "0A-05",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Hook in diesem Repo eintragen",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "31 Events, ohne WorktreeCreate/Remove",
+      "link": ""
+    },
+    {
+      "id": "0A-06",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Proxmox-LXC-Helper für den Hub",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "tools/proxmox/agent-deck-hub.sh",
+      "link": ""
+    },
+    {
+      "id": "0A-07",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Einrichtungsanleitung setup-phase-0.md",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "0A-08",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Pull Request öffnen",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "PR #1, 23 Tests grün",
+      "link": "https://github.com/florianwilde/agent-deck/pull/1"
+    },
+    {
+      "id": "0A-09",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "PR #1 mergen",
+      "owner": "Florian",
+      "status": "fertig",
+      "note": "gemergt; der Proxmox-Helper liegt jetzt auf main",
+      "link": "https://github.com/florianwilde/agent-deck/pull/1"
+    },
+    {
+      "id": "0A-10",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Standard-Branch auf main stellen",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "GitHub → Settings → Default branch",
+      "link": ""
+    },
+    {
+      "id": "0A-11",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Hub im Homelab starten",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "Proxmox-Helper erneut ausführen; der 404 kam vom noch nicht gemergten PR",
+      "link": ""
+    },
+    {
+      "id": "0A-12",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "NetBird-Reverse-Proxy für die Hub-Subdomain",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "öffentlich erreichbar, Ziel Port 8787",
+      "link": ""
+    },
+    {
+      "id": "0A-13",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Cloud-Umgebung einrichten",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "Custom-Netzwerk, Network Secret, AGENT_DECK_URL",
+      "link": ""
+    },
+    {
+      "id": "0A-14",
+      "phase": "0A",
+      "phase_title": "Phase 0 A – Capture-Hub und Hook",
+      "task": "Test-Session durchspielen",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "Tabelle in Schritt 5 von setup-phase-0.md",
+      "link": ""
+    },
+    {
+      "id": "0B-01",
+      "phase": "0B",
+      "phase_title": "Phase 0 B – Auswerten",
+      "task": "Capture-Daten abrufen",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "0B-02",
+      "phase": "0B",
+      "phase_title": "Phase 0 B – Auswerten",
+      "task": "cloud-findings.md mit echten Payloads",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "Events, Session-URL, Repo-Name, Notification-Typen",
+      "link": ""
+    },
+    {
+      "id": "0B-03",
+      "phase": "0B",
+      "phase_title": "Phase 0 B – Auswerten",
+      "task": "Queue-Test mit Stop-Hook",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "0B-04",
+      "phase": "0B",
+      "phase_title": "Phase 0 B – Auswerten",
+      "task": "event-mapping.md festlegen",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "0B-05",
+      "phase": "0B",
+      "phase_title": "Phase 0 B – Auswerten",
+      "task": "Capture-Daten löschen",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "Schritt 7 von setup-phase-0.md",
+      "link": ""
+    },
+    {
+      "id": "1-01",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "Gemeinsame Schemas (zod)",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "1-02",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "Hub-Normalbetrieb mit Status-Engine und WebSocket",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "1-03",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "Schlanker Hook agent-deck.sh",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "1-04",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "agent-deck init / --uninstall",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "1-05",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "setup-hub.md",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "1-06",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "Hub auf HUB_MODE=normal umstellen",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "2-00",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Design-Dateien ins Repo legen (docs/design)",
+      "owner": "Florian",
+      "status": "fertig",
+      "note": "DESIGN.md, keys.js, mockups.html, 4 Screenshots",
+      "link": ""
+    },
+    {
+      "id": "2-01",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Renderer aus keys.js portieren",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "2-02",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Hub-Verbindung im Plugin",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "2-03",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Aktion Projekt-Slot und Property Inspector",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "2-04",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Plugin packen (.streamDeckPlugin)",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "2-05",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Am Stream Deck XL unter Windows testen",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "3-01",
+      "phase": "3",
+      "phase_title": "Phase 3 – Queue und Makros",
+      "task": "Queue im Hub und Stop-Hook",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "3-02",
+      "phase": "3",
+      "phase_title": "Phase 3 – Queue und Makros",
+      "task": "Makros im Hub",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "3-03",
+      "phase": "3",
+      "phase_title": "Phase 3 – Queue und Makros",
+      "task": "Aktionen Prompt-Makro und Queue",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "3-04",
+      "phase": "3",
+      "phase_title": "Phase 3 – Queue und Makros",
+      "task": "Zwei Makros in einer Cloud-Session testen",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "4-01",
+      "phase": "4",
+      "phase_title": "Phase 4 – Komfort und Release",
+      "task": "Aktionen Ampel und Blättern",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "4-02",
+      "phase": "4",
+      "phase_title": "Phase 4 – Komfort und Release",
+      "task": "Quittieren, Ton bei Rot",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "4-03",
+      "phase": "4",
+      "phase_title": "Phase 4 – Komfort und Release",
+      "task": "XL-Profil und Lesbarkeit bei 96 px",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "4-04",
+      "phase": "4",
+      "phase_title": "Phase 4 – Komfort und Release",
+      "task": "Robustheit, README, Release 1.0.0",
+      "owner": "Claude",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "4-05",
+      "phase": "4",
+      "phase_title": "Phase 4 – Komfort und Release",
+      "task": "XL-Profil am Gerät prüfen",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "",
+      "link": ""
+    }
+  ]
+}

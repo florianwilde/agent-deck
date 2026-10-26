@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+**/dist/
+**/data/
+CLAUDE.md
+docs/prompts/
+docs/design/
