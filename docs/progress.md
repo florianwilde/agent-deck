@@ -2,6 +2,76 @@
 
 Übersichtsseite: <https://claude.ai/artifact/WA2WWawMhNSggxxLnE1Ef8>. Die Daten dafür stehen in `docs/status.json`. Jede Session aktualisiert sie nach ihren Arbeitsschritten, lädt die Datei als Asset der Seite hoch und trägt die neue Asset-URL im Datensatz `tasks` ein.
 
+## Phase 2 – Stream-Deck-Plugin MVP 🟡 (PR offen, Test am Gerät steht aus)
+
+### Fertig
+
+- **`packages/streamdeck-plugin`** mit `@elgato/streamdeck` **3.0.3**: Manifest `de.wildeflorian.agentdeck`, Name „agent-deck“, SDKVersion 3, Stream Deck ≥ 7.1, Node 24, nur Windows. `streamdeck validate` meldet keine Fehler.
+- **Renderer** (`src/render/`, per Subagent): `keys.js` nach TypeScript portiert (`projectKey`, `overviewKey`, `commandKey`, `wrapName`, `nameFontSize`, Tokens).
+  - Snapshot-Tests vergleichen jeden Zustand aus Screenshot 01 und alle Tasten aus 03 **byte-genau** mit der Ausgabe des unveränderten `keys.js`.
+  - Status-Namen und Füllfarben kommen aus `packages/shared`.
+  - Neu sind `emptyKey` (freie Taste: nur die dunkle Innenfläche), `formatSince` (m/h/d) und `svgToDataUrl`.
+  - Die Vorschau `tools/preview.html` nutzt die TS-Renderer. Den Screenshot `tools/preview.png` habe ich mit Screenshot 01 und 03 verglichen: Geometrie, Farben, Umbrüche und Pillen stimmen. Die Schrift ist in der Sandbox Inter statt Segoe UI.
+- **Hub-Client** (`src/hub-client.ts`):
+  - `WS /ws` mit `Authorization: Bearer …` im Handshake, Snapshot und Deltas über `WsMessageSchema`.
+  - Reconnect mit Backoff 1 s → 30 s. Ohne Verbindung sind alle Slots `OFFLINE · –`.
+  - Aus der Hub-URL werden REST- und WS-URL abgeleitet (`http://…:8788`, `…/ws`, `ws(s)://` gehen alle).
+  - Getestet gegen einen echten Hub im Normalbetrieb (im Testprozess auf freien Ports): Snapshot, Upserts, `ack`, falscher Token (401), Hub-Neustart.
+- **Aktion „Projekt-Slot“** (`src/slots.ts`, `src/deck.ts`, `src/actions/slot.ts`):
+  - Automatische Belegung nach Gerät, Zeile, Spalte. Sessions nach Status-Priorität, dann `since` (am längsten wartend zuerst).
+  - Feste Belegung per Repo: zeigt die dringendste Session des Repos, bei mehreren `n×`, mit Pin-Punkt. Diese Sessions fallen aus der automatischen Verteilung.
+  - Optional fester Rang „n. dringendste Session“ (Feld „Position“ aus Screenshot 04).
+  - Kurz drücken öffnet die Session-URL, ohne Session `https://claude.ai/code`. Lang drücken (≥ 600 ms) schickt `POST /sessions/:id/ack` und zeigt Haken oder Warndreieck.
+  - Blinken 600 ms bei unquittiertem `needs_input`, Punkte 500 ms bei `working`, Zeit minütlich. Ein Takt von 100 ms berechnet die Bilder, `setImage` geht nur bei Änderung raus.
+  - Lokaler Inaktiv-Timeout (10/15/30 Min.) aus den globalen Einstellungen.
+- **Property Inspector** (`ui/slot.html`, per Subagent) mit sdpi-components v4.0.1 laut Screenshot 04:
+  - Global: Hub-URL, Token, Status live, Öffnen in, Browser, Inaktiv nach, Ton bei Rot, „Verbindung testen“, „Snippet kopieren“.
+  - Pro Taste: Belegung, Position, Repo (Liste vom Plugin), Anzeigename.
+  - Geprüft mit `tools/pi-check.mjs` gegen eine nachgestellte Stream-Deck-App (18 Prüfungen).
+- **End-to-End-Smoke-Test** (`tools/smoke.mjs`): das gebaute `bin/plugin.js`, ein echter Hub-Prozess und eine nachgestellte Stream-Deck-App. Durchgespielt: Taste zeigt die Session → Rot und Blinken bei `PermissionRequest` → Kurzdruck öffnet die Session → Langdruck quittiert → Gelb bei `Stop` → Hub weg ergibt `OFFLINE`. Der Token taucht weder in Nachrichten an Stream Deck noch im Plugin-Log auf.
+- **Packen:** `pnpm --filter @agent-deck/streamdeck-plugin run package` erzeugt `dist/de.wildeflorian.agentdeck.streamDeckPlugin` (ca. 220 KB).
+  - Der neue Workflow `.github/workflows/plugin-release.yml` baut das Plugin bei jedem PR und legt die Datei als Artefakt ab.
+  - Bei einem Tag `plugin-v*` oder einem manuellen Start erstellt er ein Pre-Release mit der Datei.
+  - Den Umweg über einen Workflow braucht es, weil die GitHub-Werkzeuge dieser Session kein Release anlegen können und der Git-Proxy den Tag-Push abgelehnt hat.
+- **Hub-Fix:**
+  - **Problem:** Solange ein WebSocket-Client verbunden war, hing `close()` des VPN-Listeners. Fastify wartet beim Schließen auf offene Verbindungen, der `onClose`-Hook kam zu spät. Folge im Betrieb: `systemctl restart` hätte bei verbundenem Plugin gehangen, bis systemd den Prozess abschießt.
+  - **Lösung:** Aufräumen jetzt im `preClose`-Hook, dazu ein Test.
+- [`docs/setup-plugin.md`](setup-plugin.md): Installation unter Windows, VPN, Einstellungen, Bedienung, 24 Slots auf dem XL empfohlen (unterste Reihe frei für Phase 3/4), Fehlersuche.
+- Tests: 297 grün, davon Plugin 114 (Renderer 77, Belegung, Deck, Hub-Client) und Hub 77 (+1). Lint, Prettier und Typecheck sind grün.
+
+### Abweichungen von `CLAUDE.md` bzw. dem Phasen-Prompt
+
+| Thema                    | `CLAUDE.md` / Prompt                     | Umgesetzt                                                                                           | Grund                                                                                                                                         |
+| ------------------------ | ---------------------------------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| SDK                      | `@elgato/streamdeck` v2                  | v3.0.3 (SDKVersion 3)                                                                               | aktuell; verlangt genau Node 24 und Stream Deck 7.1, wie im Prompt vorgegeben                                                                 |
+| Scaffold                 | `streamdeck create`                      | Struktur der CLI-Vorlage (`@elgato/cli` 1.10.3) von Hand nachgebaut, Build mit esbuild statt Rollup | Der Wizard ist interaktiv. esbuild versteht die `.ts`-Importe und die `source`-Bedingung der Workspace-Pakete ohne Zusatz-Plugins.            |
+| sdpi-components          | vom CDN (Vorlage)                        | v4.0.1 lokal unter `ui/vendor/` (MIT)                                                               | Der Property Inspector funktioniert so auch ohne Internet. Das CDN war aus der Sandbox nicht erreichbar.                                      |
+| Claude-App               | „Browser / Claude-App“                   | beide angeboten, die App versuchsweise mit `claude://claude.ai/code/session_…`                      | Die App hat ein URL-Schema, dokumentiert ist aber kein Link auf eine bestehende Session (siehe `setup-plugin.md`). **Bitte am Gerät testen.** |
+| Browser-Auswahl          | Screenshot 04: Feld „Browser“            | nur „Standardbrowser“, deaktiviert                                                                  | `openUrl` öffnet immer den Standardbrowser des Systems                                                                                        |
+| Inaktiv nach             | Screenshot 04: „30 Minuten“              | 10, 15 oder 30 Min., wirkt in der Anzeige                                                           | Der Hub setzt fest nach 30 Min. `idle`, längere Werte hätten keine Wirkung                                                                    |
+| Property Inspector       | Segment-Buttons, Labels ohne Doppelpunkt | Radio-Buttons, Labels mit Doppelpunkt                                                               | So rendern die sdpi-components (Shadow DOM)                                                                                                   |
+| Plugin-Icon              | –                                        | PNG 256/512 (die rote Antwort-Taste), Kategorie- und Aktionssymbol als SVG                          | Das Manifest-Schema verlangt fürs Plugin-Icon PNG                                                                                             |
+| Feste Taste ohne Session | –                                        | leere Taste                                                                                         | –                                                                                                                                             |
+
+### Was du (Florian) tun musst
+
+1. **Plugin herunterladen.**
+   - Vor dem Merge: im PR unter _Checks → plugin-release → Summary → Artifacts_, als ZIP mit der `.streamDeckPlugin`-Datei.
+   - Das Release `plugin-v0.1.0` lege ich nach dem Merge per manuellem Workflow-Start an. Das geht erst, wenn der Workflow auf `main` liegt. Du kannst es auch selbst unter _Actions → plugin-release → Run workflow_ mit `plugin-v0.1.0` starten.
+2. Das Plugin nach [`docs/setup-plugin.md`](setup-plugin.md) installieren, die Hub-URL `http://10.1.5.229:8788` und den VPN-Token eintragen und Tasten platzieren.
+3. **Am Stream Deck XL testen:**
+   - Slots zeigen echte Sessions.
+   - **Rot bei Frage**: In einer Session `AskUserQuestion` auslösen. Damit ist auch `needs_input` live geprüft (offen aus Phase 1).
+   - Gelb bei fertig, Druck öffnet die Session, Langdruck quittiert (Rot hört auf zu blinken).
+   - „Claude-App“ ausprobieren: Öffnet `claude://claude.ai/code/session_…` die Session in der App?
+   - „Snippet kopieren“ im Property Inspector: Kommt der Text in der Zwischenablage an?
+4. PR prüfen und mergen.
+
+### Offen
+
+- Test am Gerät (siehe oben), dazu Schrift-Breiten mit Segoe UI.
+- Ampel, Prompt-Makro, Queue, Blättern und mitgelieferte Profile: Phase 3/4.
+
 ## Phase 1 – Hub, Hook und `agent-deck init` ✅ (gemergt, Hub im Normalbetrieb)
 
 ### Fertig

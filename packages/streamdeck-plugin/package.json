@@ -1,7 +1,23 @@
 {
   "name": "@agent-deck/streamdeck-plugin",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": {}
+  "scripts": {
+    "build": "node --conditions=source --experimental-strip-types build.ts",
+    "package": "pnpm build && streamdeck pack de.wildeflorian.agentdeck.sdPlugin --output dist --force",
+    "validate": "streamdeck validate de.wildeflorian.agentdeck.sdPlugin",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@agent-deck/shared": "workspace:*",
+    "@elgato/streamdeck": "^3.0.3",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@elgato/cli": "^1.10.3",
+    "@types/ws": "^8.18.2",
+    "esbuild": "^0.28.2"
+  }
 }

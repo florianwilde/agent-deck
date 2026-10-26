@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <title>agent-deck · Projekt-Slot</title>
+    <link rel="stylesheet" href="pi.css" />
+    <!-- sdpi-components v4.0.1 lokal (MIT), damit der Property Inspector ohne Internet funktioniert -->
+    <script src="vendor/sdpi-components.js"></script>
+    <script src="pi.js" defer></script>
+  </head>
+  <body>
+    <!-- Globale Einstellungen (einmal pro Plugin, Attribut "global") -->
+    <h2 class="section"><span class="dot" id="conn-dot"></span>agent-deck · Verbindung</h2>
+
+    <sdpi-item label="Hub-URL">
+      <sdpi-textfield setting="hubUrl" global placeholder="http://10.1.5.229:8788"></sdpi-textfield>
+    </sdpi-item>
+    <sdpi-item label="Token">
+      <sdpi-password setting="token" global></sdpi-password>
+    </sdpi-item>
+    <sdpi-item label="Status">
+      <div class="status" id="status" data-state="unknown">
+        <span class="dot"></span><span class="status-label" id="status-label">…</span
+        ><span class="status-extra" id="status-extra"></span>
+      </div>
+    </sdpi-item>
+
+    <hr />
+
+    <sdpi-item label="Session öffnen in">
+      <sdpi-radio setting="openIn" global default="browser" columns="2">
+        <option value="browser">Browser</option>
+        <option value="app">Claude-App</option>
+      </sdpi-radio>
+    </sdpi-item>
+    <!-- Stream Deck öffnet URLs immer im Standardbrowser des Systems, daher nur Anzeige -->
+    <sdpi-item label="Browser">
+      <sdpi-select disabled default="default">
+        <option value="default">Standardbrowser</option>
+      </sdpi-select>
+    </sdpi-item>
+    <sdpi-item label="Inaktiv nach">
+      <sdpi-select setting="inactiveMinutes" global default="30">
+        <option value="10">10 Minuten</option>
+        <option value="15">15 Minuten</option>
+        <option value="30">30 Minuten</option>
+      </sdpi-select>
+    </sdpi-item>
+    <sdpi-item label="Ton bei Rot">
+      <sdpi-radio setting="sound" global default="off" columns="3">
+        <option value="off">Aus</option>
+        <option value="once">Einmal</option>
+        <option value="always">Immer</option>
+      </sdpi-radio>
+    </sdpi-item>
+    <p class="hint">Ton folgt in einer späteren Version.</p>
+
+    <hr />
+
+    <sdpi-item>
+      <div class="buttons">
+        <sdpi-button id="test-connection">Verbindung testen</sdpi-button>
+        <span class="feedback" id="test-result"></span>
+        <sdpi-button id="copy-snippet">Snippet kopieren</sdpi-button>
+        <span class="feedback" id="copy-result"></span>
+      </div>
+    </sdpi-item>
+
+    <hr />
+
+    <!-- Einstellungen dieser Taste (ohne "global") -->
+    <h2 class="section"><span class="dot dot-slot"></span>Projekt-Slot</h2>
+
+    <sdpi-item label="Belegung">
+      <sdpi-radio id="mode" setting="mode" default="auto" columns="2">
+        <option value="auto">Automatisch</option>
+        <option value="fixed">Fest</option>
+      </sdpi-radio>
+    </sdpi-item>
+    <sdpi-item label="Position">
+      <sdpi-select id="position" setting="position" default="">
+        <option value="">Nach Tastenposition</option>
+        <option value="1">1. dringendste Session</option>
+        <option value="2">2. dringendste Session</option>
+        <option value="3">3. dringendste Session</option>
+        <option value="4">4. dringendste Session</option>
+        <option value="5">5. dringendste Session</option>
+        <option value="6">6. dringendste Session</option>
+        <option value="7">7. dringendste Session</option>
+        <option value="8">8. dringendste Session</option>
+        <option value="9">9. dringendste Session</option>
+        <option value="10">10. dringendste Session</option>
+        <option value="11">11. dringendste Session</option>
+        <option value="12">12. dringendste Session</option>
+        <option value="13">13. dringendste Session</option>
+        <option value="14">14. dringendste Session</option>
+        <option value="15">15. dringendste Session</option>
+        <option value="16">16. dringendste Session</option>
+        <option value="17">17. dringendste Session</option>
+        <option value="18">18. dringendste Session</option>
+        <option value="19">19. dringendste Session</option>
+        <option value="20">20. dringendste Session</option>
+        <option value="21">21. dringendste Session</option>
+        <option value="22">22. dringendste Session</option>
+        <option value="23">23. dringendste Session</option>
+        <option value="24">24. dringendste Session</option>
+        <option value="25">25. dringendste Session</option>
+        <option value="26">26. dringendste Session</option>
+        <option value="27">27. dringendste Session</option>
+        <option value="28">28. dringendste Session</option>
+        <option value="29">29. dringendste Session</option>
+        <option value="30">30. dringendste Session</option>
+        <option value="31">31. dringendste Session</option>
+        <option value="32">32. dringendste Session</option>
+      </sdpi-select>
+    </sdpi-item>
+    <p class="hint">Bei „Fest“: Repo auswählen, die Taste zeigt dann immer dieses Repo.</p>
+    <sdpi-item label="Repo">
+      <sdpi-select
+        id="repo"
+        setting="repo"
+        datasource="repos"
+        hot-reload
+        loading="Lade Repos …"
+        placeholder="– nur bei „Fest“ –"
+      ></sdpi-select>
+    </sdpi-item>
+    <sdpi-item label="Name anzeigen">
+      <sdpi-textfield setting="displayName" placeholder="aus Repo-Name"></sdpi-textfield>
+    </sdpi-item>
+  </body>
+</html>

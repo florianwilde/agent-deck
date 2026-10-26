@@ -73,7 +73,9 @@ export function registerVpnRoutes(app: FastifyInstance, hub: SessionHub, vpnToke
   };
   app.server.on("upgrade", onUpgrade);
 
-  app.addHook("onClose", async () => {
+  // preClose statt onClose: Fastify wartet beim Schließen auf offene Verbindungen, und dazu
+  // zählen die WebSockets. Ohne das hinge `close()` (z. B. `systemctl restart`), solange das Plugin verbunden ist.
+  app.addHook("preClose", async () => {
     clearInterval(heartbeat);
     unsubscribe();
     app.server.off("upgrade", onUpgrade);

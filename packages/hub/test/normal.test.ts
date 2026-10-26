@@ -255,6 +255,14 @@ describe("Normalbetrieb", () => {
       expect(all.slice(2).map((m) => m.type)).toEqual(["session.upsert", "session.remove"]);
     });
 
+    it("close() trennt offene WebSockets und hängt nicht", async () => {
+      const client = connect();
+      await client.next(1);
+      const closed = new Promise<void>((resolve) => client.socket.on("close", () => resolve()));
+      await vpnApp.close();
+      await closed;
+    });
+
     it("lehnt Verbindungen ohne VPN-Token ab", async () => {
       for (const headers of [{}, publicAuth]) {
         const { socket } = connect(headers);
