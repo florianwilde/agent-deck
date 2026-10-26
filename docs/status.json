@@ -97,7 +97,7 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "Standard-Branch auf main stellen",
       "owner": "Florian",
-      "status": "offen",
+      "status": "fertig",
       "note": "GitHub → Settings → Default branch",
       "link": ""
     },
@@ -107,7 +107,7 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "Hub im Homelab starten",
       "owner": "Florian",
-      "status": "offen",
+      "status": "fertig",
       "note": "Proxmox-Helper erneut ausführen; der 404 kam vom noch nicht gemergten PR",
       "link": ""
     },
@@ -117,7 +117,7 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "NetBird-Reverse-Proxy für die Hub-Subdomain",
       "owner": "Florian",
-      "status": "offen",
+      "status": "fertig",
       "note": "öffentlich erreichbar, Ziel Port 8787",
       "link": ""
     },
@@ -127,7 +127,7 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "Cloud-Umgebung einrichten",
       "owner": "Florian",
-      "status": "offen",
+      "status": "fertig",
       "note": "Custom-Netzwerk, Network Secret, AGENT_DECK_URL",
       "link": ""
     },
@@ -137,8 +137,8 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "Test-Session durchspielen",
       "owner": "Florian",
-      "status": "offen",
-      "note": "Tabelle in Schritt 5 von setup-phase-0.md",
+      "status": "fertig",
+      "note": "von Claude in Teil B nachgeholt (3 Test-Sessions)",
       "link": ""
     },
     {
@@ -147,8 +147,8 @@
       "phase_title": "Phase 0 B – Auswerten",
       "task": "Capture-Daten abrufen",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "285 Events aus 5 Sessions",
       "link": ""
     },
     {
@@ -157,7 +157,7 @@
       "phase_title": "Phase 0 B – Auswerten",
       "task": "cloud-findings.md mit echten Payloads",
       "owner": "Claude",
-      "status": "offen",
+      "status": "fertig",
       "note": "Events, Session-URL, Repo-Name, Notification-Typen",
       "link": ""
     },
@@ -167,8 +167,8 @@
       "phase_title": "Phase 0 B – Auswerten",
       "task": "Queue-Test mit Stop-Hook",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "funktioniert, Hooks wirken live",
       "link": ""
     },
     {
@@ -177,7 +177,17 @@
       "phase_title": "Phase 0 B – Auswerten",
       "task": "event-mapping.md festlegen",
       "owner": "Claude",
-      "status": "offen",
+      "status": "fertig",
+      "note": "",
+      "link": ""
+    },
+    {
+      "id": "0B-06",
+      "phase": "0B",
+      "phase_title": "Phase 0 B – Auswerten",
+      "task": "progress.md aktualisieren, Pull Request öffnen",
+      "owner": "Claude",
+      "status": "fertig",
       "note": "",
       "link": ""
     },
