@@ -198,7 +198,7 @@
       "task": "Capture-Daten löschen",
       "owner": "Florian",
       "status": "offen",
-      "note": "Schritt 7 von setup-phase-0.md",
+      "note": "jetzt docs/setup-hub.md, Schritt 3; Daten liegen noch auf dem Hub",
       "link": ""
     },
     {
@@ -207,8 +207,8 @@
       "phase_title": "Phase 1 – Hub, Hook und init",
       "task": "Gemeinsame Schemas (zod)",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "HookEvent, Session, WS-Nachrichten",
       "link": ""
     },
     {
@@ -217,8 +217,8 @@
       "phase_title": "Phase 1 – Hub, Hook und init",
       "task": "Hub-Normalbetrieb mit Status-Engine und WebSocket",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "2 Listener, HUB_VPN_TOKEN, Entfernen nach 24 h idle",
       "link": ""
     },
     {
@@ -227,8 +227,8 @@
       "phase_title": "Phase 1 – Hub, Hook und init",
       "task": "Schlanker Hook agent-deck.sh",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "mit und ohne jq, in der Cloud live geprüft",
       "link": ""
     },
     {
@@ -237,8 +237,8 @@
       "phase_title": "Phase 1 – Hub, Hook und init",
       "task": "agent-deck init / --uninstall",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "Merge, idempotent, Backup, entfernt Phase-0-Hooks",
       "link": ""
     },
     {
@@ -247,8 +247,8 @@
       "phase_title": "Phase 1 – Hub, Hook und init",
       "task": "setup-hub.md",
       "owner": "Claude",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "inkl. Capture-Daten löschen",
       "link": ""
     },
     {
@@ -258,7 +258,57 @@
       "task": "Hub auf HUB_MODE=normal umstellen",
       "owner": "Florian",
       "status": "offen",
+      "note": "setup-hub.md, Schritt 2 (Proxmox: agent-deck-hub normal)",
+      "link": ""
+    },
+    {
+      "id": "1-07",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "Capture-Hook und queue-test.sh entfernen, init auf dieses Repo",
+      "owner": "Claude",
+      "status": "fertig",
       "note": "",
+      "link": ""
+    },
+    {
+      "id": "1-08",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "Pull Request öffnen",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "PR #3, 182 Tests grün",
+      "link": "https://github.com/florianwilde/agent-deck/pull/3"
+    },
+    {
+      "id": "1-09",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "PR #3 mergen",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "",
+      "link": "https://github.com/florianwilde/agent-deck/pull/3"
+    },
+    {
+      "id": "1-10",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "NetBird: VPN-Port 8788 freigeben",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "Reverse Proxy bleibt auf 8787",
+      "link": ""
+    },
+    {
+      "id": "1-11",
+      "phase": "1",
+      "phase_title": "Phase 1 – Hub, Hook und init",
+      "task": "Test: Frage → needs_input, Ende → done",
+      "owner": "Florian",
+      "status": "offen",
+      "note": "setup-hub.md, Schritt 6",
       "link": ""
     },
     {

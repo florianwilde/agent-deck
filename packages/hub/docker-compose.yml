@@ -10,6 +10,9 @@ services:
     ports:
       # Öffentlicher Listener; der NetBird-Reverse-Proxy leitet die Hub-Subdomain hierher.
       - "${HUB_PUBLISH_PORT:-8787}:8787"
+      # VPN-Listener (Plugin, Normalbetrieb). Nur an eine Adresse binden, die aus dem VPN, aber nicht
+      # über den Reverse Proxy erreichbar ist, z. B. die NetBird- oder LAN-IP des Docker-Hosts.
+      - "${HUB_VPN_BIND:-127.0.0.1}:${HUB_VPN_PUBLISH_PORT:-8788}:8788"
     volumes:
       # Benanntes Volume: gehört automatisch dem non-root-User "node" im Container.
       - hub-data:/data

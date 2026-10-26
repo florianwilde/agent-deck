@@ -2,7 +2,65 @@
 
 Übersichtsseite: <https://claude.ai/artifact/WA2WWawMhNSggxxLnE1Ef8>. Die Daten dafür stehen in `docs/status.json`. Jede Session aktualisiert sie nach ihren Arbeitsschritten, lädt die Datei als Asset der Seite hoch und trägt die neue Asset-URL im Datensatz `tasks` ein.
 
-## Phase 0 B – Auswertung ✅ (PR offen)
+## Phase 1 – Hub, Hook und `agent-deck init` ✅ (PR offen)
+
+### Fertig
+
+- **`packages/shared`**: zod-Schemas `HookEvent`, `Session` und WebSocket-Nachrichten (`snapshot`, `session.upsert`, `session.remove`), dazu Status-Enum mit Priorität und Farben, Timeouts, die Hook-Liste für `init` und `sessionUrl()`. Tests und Typecheck lesen `src/` über die Export-Bedingung `source`, der Build erzeugt `dist/`.
+- **`packages/hub`, Normalbetrieb** (`HUB_MODE=normal`). Der Capture-Modus bleibt.
+  - **Zwei Listener.** Öffentlich: `POST /events` mit `HUB_TOKEN`, ≤ 4 KB, 60/min pro IP, zod, unbekannte Felder werden verworfen. VPN: `GET /state`, `WS /ws`, `POST /sessions/:id/ack` mit dem neuen **`HUB_VPN_TOKEN`**, dazu je `GET /health`.
+  - **Status-Engine** als reine Funktionen (`src/normal/engine.ts`), Tests für jede Zeile in `docs/event-mapping.md`. Ältere Events (nach Hook-Zeitstempel) werden verworfen, neue setzen `acknowledged` zurück.
+  - **Timeouts:** `working` → `idle` nach 10 Min., alles → `idle` nach 30 Min. Entfernt wird 10 Min. nach `SessionEnd` und **nach 24 h `idle`**. So verschwinden archivierte Sessions, die kein `SessionEnd` senden.
+  - SQLite-Persistenz (Tabelle `sessions`, nur Metadaten). Liegen noch Capture-Daten in der Datei, warnt der Hub beim Start.
+  - Logs über pino, ohne Token und ohne Meldungstexte.
+  - Dockerfile mit `shared`, Ports 8787/8788. `docker-compose.yml` bindet den VPN-Port an `HUB_VPN_BIND`. `.env.example` ist aktualisiert.
+- **`packages/hook/agent-deck.sh`**, umgesetzt per Subagent.
+  - Sendet nur `{v, event, sessionId, repo, branch, ts, notificationType, source, message}`.
+  - Session-Key ist `CLAUDE_CODE_REMOTE_SESSION_ID`, Repo kommt aus `git remote`, `message` ist auf 120 Zeichen gekürzt.
+  - Läuft mit und ohne `jq` mit identischem Ergebnis. Keine Ausgabe, immer Exit 0, `curl --max-time 2`.
+  - **In dieser Cloud-Session live bestätigt:** Nach `agent-deck init .` kamen am (noch Capture-)Hub nur noch die schlanken Bodies an, mit `cse_…`, `florianwilde/agent-deck` und Branch.
+- **`packages/cli`**, umgesetzt per Subagent.
+  - `agent-deck init [pfad]` und `--uninstall`: Merge mit fremden Hooks, idempotent, Backup `settings.json.bak`, atomares Schreiben.
+  - Altlasten aus Phase 0 (Capture-Hook, `queue-test.sh`) werden entfernt.
+  - Aufruf: `pnpm agent-deck init <pfad>`. Läuft ohne Build, auch mit Node 22.
+- **Dieses Repo:** `agent-deck init .` angewendet. In `.claude/` stehen nur noch `settings.json` (10 Events, `Stop` synchron mit `timeout: 5`) und `hooks/agent-deck.sh`. Capture-Hook und `queue-test.sh` sind gelöscht.
+- **Proxmox-Helper:**
+  - Neue Installationen starten im Normalbetrieb mit beiden Tokens.
+  - Neue Befehle im Container: `agent-deck-hub normal` (Umstellung aus Phase 0) und `agent-deck-hub vpn-token`.
+  - `update` baut `shared` mit und erneuert den Helfer, mit den bisherigen Ports und dem bisherigen Branch.
+  - Behoben: die shellcheck-Meldung SC2015. `pnpm lint:sh` läuft jetzt mit UTF-8-Locale.
+- [`docs/setup-hub.md`](setup-hub.md): Update, Umstellung auf `HUB_MODE=normal`, **Capture-Daten löschen** (Schritt 3), NetBird für den VPN-Port, Test, weitere Repos anbinden, alle Variablen.
+- Tests: 182 grün (Hub 76, Hook 79, CLI 27). Lint, Typecheck, Prettier, Build und shellcheck sind ebenfalls grün.
+
+### Nicht geprüft
+
+- Den Docker-Build habe ich in der Sandbox nicht vollständig durchlaufen lassen, weil `apt` und das better-sqlite3-Prebuild dort nicht durchs Netz kommen. Geprüft ist `pnpm deploy` mit dem `shared`-Paket: Das Bundle startet im Normalbetrieb.
+- Den Container-Teil des Proxmox-Helpers habe ich nur mit Attrappen getestet: `normal` an einer Phase-0-`hub.env` sowie Rendern und shellcheck des Helfers.
+
+### Abweichungen von `CLAUDE.md` bzw. dem Phasen-Prompt
+
+| Thema             | `CLAUDE.md` / Prompt            | Umgesetzt                                                              | Grund                                                                                      |
+| ----------------- | ------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| VPN-Endpunkte     | nur über Bind-Adresse geschützt | zusätzlich Bearer-Token `HUB_VPN_TOKEN`                                | mit Florian abgestimmt; das Plugin schickt ihn ab Phase 2 mit                              |
+| Entfernen         | nach `SessionEnd` 10 Min.       | zusätzlich nach 24 h `idle`                                            | `SessionEnd` kommt in der Cloud nie (Phase 0 B), mit Florian abgestimmt                    |
+| `SessionEnd`-Hook | Phase 0: synchron, `timeout: 5` | `async: true` wie alle außer `Stop`                                    | laut `event-mapping.md`; kommt in der Cloud ohnehin nicht                                  |
+| Hook-Handler      | –                               | Exec-Form mit `"args": []`                                             | laut Hooks-Doku empfohlen für Pfad-Platzhalter, in Phase 0 in der Cloud bewährt            |
+| WebSocket-Upserts | „jede Änderung“                 | ohne reine Zeitstempel-Änderungen (`lastEventAt`)                      | Tool-Events kommen im Sekundentakt, für die Tasten ändert sich dabei nichts                |
+| Rate-Limit        | 60/min pro IP                   | 60/min, per `HUB_RATE_LIMIT` änderbar                                  | Capture-Daten: max. 32 Events/min pro Cloud-IP, bei 31 statt jetzt 10 registrierten Events |
+| Body-Limit        | ≤ 4 KB                          | im Normalbetrieb fest 4096, `HUB_BODY_LIMIT` gilt nur noch für Capture | eine alte `hub.env` mit 256 KB soll das Limit nicht aushebeln                              |
+
+### Was du (Florian) tun musst
+
+Alles steht in [`docs/setup-hub.md`](setup-hub.md):
+
+1. PR prüfen und mergen.
+2. Hub aktualisieren und auf `HUB_MODE=normal` umstellen (Schritt 2). Den VPN-Token für Phase 2 aufheben.
+3. **Capture-Daten löschen** (Schritt 3). Sie liegen noch auf dem Hub: Ich habe sie in dieser Session für die Rate-Limit-Abschätzung gezählt.
+4. NetBird: Port 8788 nur im VPN freigeben, der Reverse Proxy bleibt auf 8787 (Schritt 4).
+5. Test nach Schritt 6: neue Session → `working`, Rückfrage → `needs_input`, Ende → `done`.
+6. Phase 2 starten.
+
+## Phase 0 B – Auswertung ✅ (gemergt)
 
 ### Fertig
 
@@ -49,7 +107,7 @@
 ### Was du (Florian) tun musst
 
 1. PR prüfen und mergen.
-2. **Capture-Daten löschen** (`docs/setup-phase-0.md`, Schritt 7). Sie enthalten Prompts und Antworttexte. Bis Phase 1 schickt der Capture-Hook aus jeder Session in diesem Repo weiter alles an den Hub. Wenn du das nicht willst, stoppe den Hub bis dahin.
+2. **Capture-Daten löschen** (jetzt `docs/setup-hub.md`, Schritt 3). Sie enthalten Prompts und Antworttexte. Bis Phase 1 schickt der Capture-Hook aus jeder Session in diesem Repo weiter alles an den Hub. Wenn du das nicht willst, stoppe den Hub bis dahin.
 3. Optional: Die drei archivierten Test-Sessions „agent-deck Capture-Test …“ in claude.ai/code löschen.
 4. Phase 1 starten.
 

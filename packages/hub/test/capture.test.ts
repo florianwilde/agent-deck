@@ -134,12 +134,34 @@ describe("loadConfig", () => {
     expect(loadConfig({ HUB_TOKEN: TOKEN, HUB_PORT: "9000" }).port).toBe(9000);
   });
 
-  it("HUB_MODE=normal ist in Phase 0 noch nicht verfügbar", () => {
+  it("buildApp ist nur für den Capture-Modus", () => {
     const store = new CaptureStore(":memory:");
     expect(() => buildApp(config({ mode: "normal" }), { captureStore: store }, false)).toThrow(
-      /Phase 1/,
+      /buildNormalApps/,
     );
     store.close();
+  });
+
+  it("verlangt im Normalbetrieb einen eigenen VPN-Token", () => {
+    const normal = { HUB_TOKEN: TOKEN, HUB_MODE: "normal" };
+    expect(() => loadConfig(normal)).toThrow(/HUB_VPN_TOKEN/);
+    expect(() => loadConfig({ ...normal, HUB_VPN_TOKEN: TOKEN })).toThrow(/unterscheiden/);
+    expect(() =>
+      loadConfig({ ...normal, HUB_VPN_TOKEN: "v".repeat(40), HUB_VPN_PORT: "8787" }),
+    ).toThrow(/HUB_VPN_PORT/);
+    const ok = loadConfig({ ...normal, HUB_VPN_TOKEN: "v".repeat(40) });
+    expect(ok).toMatchObject({ vpnHost: "127.0.0.1", vpnPort: 8788, rateLimit: 60 });
+  });
+
+  it("Body-Limit: Capture 256 KB, Normalbetrieb fest 4 KB", () => {
+    expect(loadConfig({ HUB_TOKEN: TOKEN }).bodyLimit).toBe(256 * 1024);
+    const normal = loadConfig({
+      HUB_TOKEN: TOKEN,
+      HUB_MODE: "normal",
+      HUB_VPN_TOKEN: "v".repeat(40),
+      HUB_BODY_LIMIT: "262144",
+    });
+    expect(normal.bodyLimit).toBe(4096);
   });
 });
 

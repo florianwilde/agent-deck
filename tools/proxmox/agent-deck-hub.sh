@@ -5,11 +5,13 @@
 #   bash -c "$(curl -fsSL https://raw.githubusercontent.com/florianwilde/agent-deck/main/tools/proxmox/agent-deck-hub.sh)"
 #
 # Legt einen unprivilegierten Debian-LXC an, installiert Node.js 24 und den Hub
-# als systemd-Dienst (ohne Docker) und erzeugt einen Bearer-Token.
+# als systemd-Dienst (ohne Docker) und erzeugt die Bearer-Tokens.
 #
 # Im Container:
-#   update               Hub auf den neuesten Stand des Branches bringen
-#   agent-deck-hub token Token anzeigen
+#   update                    Hub auf den neuesten Stand des Branches bringen
+#   agent-deck-hub token      Token für die Cloud-Sessions (Network Secret) anzeigen
+#   agent-deck-hub vpn-token  Token für das Stream-Deck-Plugin anzeigen
+#   agent-deck-hub normal     Bestehende Installation auf HUB_MODE=normal umstellen
 #
 # Optionale Umgebungsvariablen (Host):
 #   AGENT_DECK_DEFAULTS=1   keine Dialoge, Standardwerte nehmen
@@ -25,6 +27,7 @@ APP="agent-deck Hub"
 REPO_URL="${AGENT_DECK_REPO:-https://github.com/florianwilde/agent-deck.git}"
 BRANCH="${AGENT_DECK_BRANCH:-main}"
 HUB_PORT="${AGENT_DECK_PORT:-8787}"
+HUB_VPN_PORT="${AGENT_DECK_VPN_PORT:-8788}"
 INSTALL_DIR=/opt/agent-deck
 CONF_DIR=/etc/agent-deck
 ENV_FILE=/etc/agent-deck/hub.env
@@ -102,18 +105,46 @@ ct_write_env() {
   umask 027
   cat >"$ENV_FILE" <<EOF
 # agent-deck Hub – Konfiguration. Nach Änderungen: systemctl restart ${SERVICE}
-HUB_MODE=capture
+HUB_MODE=normal
+# Öffentlicher Listener (Ziel des NetBird-Reverse-Proxys), Token = Network Secret.
 HUB_TOKEN=$(openssl rand -hex 32)
 HUB_HOST=0.0.0.0
 HUB_PORT=${HUB_PORT}
+# VPN-Listener für das Stream-Deck-Plugin. Nicht über den Reverse Proxy veröffentlichen.
+HUB_VPN_TOKEN=$(openssl rand -hex 32)
+HUB_VPN_HOST=0.0.0.0
+HUB_VPN_PORT=${HUB_VPN_PORT}
 HUB_DB_PATH=${DATA_DIR}/agent-deck.db
-HUB_BODY_LIMIT=262144
 HUB_LOG_LEVEL=info
 EOF
   umask 022
   chown root:"$SVC_USER" "$ENV_FILE"
   chmod 640 "$ENV_FILE"
   msg_ok "Konfiguration geschrieben (${ENV_FILE})"
+}
+
+# Setzt KEY=VALUE in der env-Datei (ersetzt oder hängt an).
+ct_set_env() {
+  if grep -q "^$1=" "$ENV_FILE"; then
+    sed -i "s|^$1=.*|$1=$2|" "$ENV_FILE"
+  else
+    printf '%s=%s\n' "$1" "$2" >>"$ENV_FILE"
+  fi
+}
+
+# Stellt eine Installation aus Phase 0 (HUB_MODE=capture) auf den Normalbetrieb um.
+ct_normal() {
+  [ -f "$ENV_FILE" ] || die "${ENV_FILE} fehlt – erst installieren"
+  msg_info "Konfiguration auf HUB_MODE=normal umstellen"
+  ct_set_env HUB_MODE normal
+  grep -q '^HUB_VPN_TOKEN=' "$ENV_FILE" || ct_set_env HUB_VPN_TOKEN "$(openssl rand -hex 32)"
+  grep -q '^HUB_VPN_HOST=' "$ENV_FILE" || ct_set_env HUB_VPN_HOST 0.0.0.0
+  grep -q '^HUB_VPN_PORT=' "$ENV_FILE" || ct_set_env HUB_VPN_PORT "$HUB_VPN_PORT"
+  # Gilt im Normalbetrieb nicht mehr (fest 4 KB).
+  sed -i 's|^HUB_BODY_LIMIT=|# HUB_BODY_LIMIT=|' "$ENV_FILE"
+  msg_ok "Konfiguration umgestellt (${ENV_FILE})"
+  ct_refresh_helper
+  ct_restart
 }
 
 ct_write_service() {
@@ -235,20 +266,48 @@ ct_update() {
   msg_ok "${before} → ${after}"
   BRANCH="$branch"
   ct_build
+  ct_refresh_helper
   ct_restart
+}
+
+# Erzeugt den Helfer im Container aus dem aktuellen Checkout neu (neue Befehle),
+# mit den bisherigen Werten für Repo, Branch und Ports.
+ct_refresh_helper() {
+  local script="$INSTALL_DIR/tools/proxmox/agent-deck-hub.sh" tmp
+  [ -f "$script" ] || return 0
+  tmp="$(mktemp)"
+  if AGENT_DECK_SOURCE_ONLY=1 AGENT_DECK_REPO="$REPO_URL" AGENT_DECK_BRANCH="$BRANCH" \
+    AGENT_DECK_PORT="$HUB_PORT" AGENT_DECK_VPN_PORT="$HUB_VPN_PORT" \
+    bash -c 'source "$1" && render_ct_script' _ "$script" >"$tmp"; then
+    install -m 0755 "$tmp" /usr/local/sbin/agent-deck-hub
+    msg_ok "Helfer aktualisiert"
+  else
+    msg_warn "Helfer nicht aktualisiert"
+  fi
+  rm -f "$tmp"
 }
 
 ct_main() {
   [ "$(id -u)" -eq 0 ] || die "Bitte als root ausführen"
+  # Ports aus der Konfiguration übernehmen (falls bei der Installation geändert).
+  if [ -f "$ENV_FILE" ]; then
+    local port
+    port="$(sed -n 's/^HUB_PORT=//p' "$ENV_FILE")"
+    [ -z "$port" ] || HUB_PORT="$port"
+    port="$(sed -n 's/^HUB_VPN_PORT=//p' "$ENV_FILE")"
+    [ -z "$port" ] || HUB_VPN_PORT="$port"
+  fi
   case "${1:-update}" in
   install) ct_install ;;
   update) ct_update "${2:-}" ;;
   token) sed -n 's/^HUB_TOKEN=//p' "$ENV_FILE" ;;
+  vpn-token) sed -n 's/^HUB_VPN_TOKEN=//p' "$ENV_FILE" ;;
+  normal) ct_normal ;;
   status)
     systemctl --no-pager status "$SERVICE" || true
     curl -fsS "http://127.0.0.1:${HUB_PORT}/health" && echo
     ;;
-  *) die "Unbekannter Befehl: $1 (install | update [branch] | token | status)" ;;
+  *) die "Unbekannter Befehl: $1 (install | update [branch] | token | vpn-token | normal | status)" ;;
   esac
 }
 
@@ -290,7 +349,9 @@ host_checks() {
   fi
   local major
   major="$(pveversion | sed -nE 's#^pve-manager/([0-9]+)\..*#\1#p')"
-  [ -n "$major" ] && [ "$major" -ge 8 ] || die "Proxmox VE 8 oder neuer nötig ($(pveversion))"
+  if [ -z "$major" ] || [ "$major" -lt 8 ]; then
+    die "Proxmox VE 8 oder neuer nötig ($(pveversion))"
+  fi
   [ "$(dpkg --print-architecture)" = amd64 ] || die "Nur amd64 wird unterstützt"
   command -v whiptail >/dev/null || INTERACTIVE=0
   [ -t 0 ] && [ -t 1 ] || INTERACTIVE=0
@@ -347,7 +408,8 @@ host_settings() {
         CT_GW="$(ask "Gateway" "$(ip route | awk '/^default/{print $3; exit}')")"
       fi
       CT_VLAN="$(ask "VLAN-Tag (leer = keins)" "")"
-      HUB_PORT="$(ask "Hub-Port" "$HUB_PORT")"
+      HUB_PORT="$(ask "Hub-Port (öffentlich, Ziel des Reverse Proxys)" "$HUB_PORT")"
+      HUB_VPN_PORT="$(ask "VPN-Port (Stream-Deck-Plugin)" "$HUB_VPN_PORT")"
       BRANCH="$(ask "Git-Branch" "$BRANCH")"
       if whiptail --title "$APP" --defaultno --yesno \
         "NetBird-Client im Container installieren?\n\nNur nötig, wenn der NetBird-Reverse-Proxy den Hub nicht schon über einen Routing-Peer im LAN erreicht." 12 64; then
@@ -368,7 +430,7 @@ host_settings() {
   CPU / RAM: ${CT_CORES} / ${CT_RAM} MB
   Disk:      ${CT_DISK} GB auf ${CT_STORAGE}
   Netz:      ${CT_BRIDGE}, ${CT_NET}${CT_VLAN:+, VLAN ${CT_VLAN}}
-  Hub:       Port ${HUB_PORT}, Branch ${BRANCH}
+  Hub:       Port ${HUB_PORT}, VPN-Port ${HUB_VPN_PORT}, Branch ${BRANCH}
   NetBird:   $([ -n "$NETBIRD_SETUP_KEY" ] && echo ja || echo nein)" 18 64 || die "Abgebrochen"
   fi
 }
@@ -425,12 +487,13 @@ host_create() {
 # Baut den Container-Teil als eigenständiges Skript (Variablen + Funktionen).
 render_ct_script() {
   printf '#!/usr/bin/env bash\n# agent-deck Hub – Helfer im Container (erzeugt von tools/proxmox/agent-deck-hub.sh)\nset -Eeuo pipefail\n'
-  declare -p REPO_URL BRANCH HUB_PORT INSTALL_DIR CONF_DIR ENV_FILE DATA_DIR SERVICE SVC_USER NODE_MAJOR \
+  declare -p REPO_URL BRANCH HUB_PORT HUB_VPN_PORT INSTALL_DIR CONF_DIR ENV_FILE DATA_DIR SERVICE SVC_USER NODE_MAJOR \
     YW GN RD CL
   # shellcheck disable=SC2016 # bewusst wörtlich: wird erst im Container ausgewertet
   printf 'NETBIRD_SETUP_KEY="${NETBIRD_SETUP_KEY:-}"\n'
   declare -f msg_info msg_ok msg_warn msg_error die \
-    ct_has_systemd ct_install_packages ct_build ct_write_env ct_write_service ct_wait_healthy \
+    ct_has_systemd ct_install_packages ct_build ct_write_env ct_set_env ct_normal ct_refresh_helper \
+    ct_write_service ct_wait_healthy \
     ct_restart ct_install_netbird ct_install_helper ct_install ct_update ct_main
   # shellcheck disable=SC2016
   printf 'ct_main "$@"\n'
@@ -447,22 +510,27 @@ host_install() {
 }
 
 host_summary() {
-  local ip token
+  local ip token vpn_token
   ip="$(pct exec "$CT_ID" -- hostname -I 2>/dev/null | awk '{print $1}')"
   token="$(pct exec "$CT_ID" -- /usr/local/sbin/agent-deck-hub token 2>/dev/null)"
+  vpn_token="$(pct exec "$CT_ID" -- /usr/local/sbin/agent-deck-hub vpn-token 2>/dev/null)"
   cat <<EOF
 
  ${GN}${APP} ist eingerichtet.${CL}
 
    Container:   ${CT_ID} (${CT_HOSTNAME})
    Lokal:       ${BL}http://${ip}:${HUB_PORT}/health${CL}
+   Plugin/VPN:  ${BL}http://${ip}:${HUB_VPN_PORT}${CL}
    Token:       ${YW}${token}${CL}
-                (jederzeit: pct exec ${CT_ID} -- agent-deck-hub token)
+                (Network Secret; jederzeit: pct exec ${CT_ID} -- agent-deck-hub token)
+   VPN-Token:   ${YW}${vpn_token}${CL}
+                (Stream-Deck-Plugin; jederzeit: pct exec ${CT_ID} -- agent-deck-hub vpn-token)
    Konfig:      ${ENV_FILE} im Container
 
- Nächste Schritte (docs/setup-phase-0.md, ab Schritt 2):
-   1. NetBird-Reverse-Proxy: Subdomain → ${ip}:${HUB_PORT}
+ Nächste Schritte (docs/setup-hub.md):
+   1. NetBird-Reverse-Proxy: Subdomain → ${ip}:${HUB_PORT} (nur dieser Port!)
    2. Cloud-Umgebung: Network Secret mit dem Token, AGENT_DECK_URL=https://<subdomain>
+   3. Repos anbinden: pnpm agent-deck init <pfad>
 
  Update:  pct exec ${CT_ID} -- update     (oder im Container: update)
 

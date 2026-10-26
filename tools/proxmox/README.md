@@ -7,13 +7,15 @@
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/florianwilde/agent-deck/main/tools/proxmox/agent-deck-hub.sh)"
 ```
 
-| Wo           | Aufruf                  | Wirkung                                                                   |
-| ------------ | ----------------------- | ------------------------------------------------------------------------- |
-| Proxmox-Host | Skript ausführen        | LXC anlegen (Debian 13, unprivilegiert), Hub installieren, Token anzeigen |
-| Container    | `update`                | Neuesten Stand des Branches holen, bauen, Dienst neu starten              |
-| Container    | `update <branch>`       | Einmalig einen anderen Branch einspielen                                  |
-| Container    | `agent-deck-hub token`  | Token anzeigen                                                            |
-| Container    | `agent-deck-hub status` | Dienststatus und `/health` anzeigen                                       |
+| Wo           | Aufruf                     | Wirkung                                                                                     |
+| ------------ | -------------------------- | ------------------------------------------------------------------------------------------- |
+| Proxmox-Host | Skript ausführen           | LXC anlegen (Debian 13, unprivilegiert), Hub im Normalbetrieb installieren, Tokens anzeigen |
+| Container    | `update`                   | Neuesten Stand des Branches holen, bauen, Helfer erneuern, Dienst neu starten               |
+| Container    | `update <branch>`          | Einmalig einen anderen Branch einspielen                                                    |
+| Container    | `agent-deck-hub token`     | Token für die Cloud-Sessions (Network Secret) anzeigen                                      |
+| Container    | `agent-deck-hub vpn-token` | Token für das Stream-Deck-Plugin anzeigen                                                   |
+| Container    | `agent-deck-hub normal`    | Installation aus Phase 0 auf `HUB_MODE=normal` umstellen (siehe `docs/setup-hub.md`)        |
+| Container    | `agent-deck-hub status`    | Dienststatus und `/health` anzeigen                                                         |
 
 Umgebungsvariablen auf dem Host:
 
@@ -22,17 +24,18 @@ Umgebungsvariablen auf dem Host:
 | `AGENT_DECK_DEFAULTS` | `0`                                              | `1` = keine Dialoge, Standardwerte nehmen  |
 | `AGENT_DECK_BRANCH`   | `main`                                           | Git-Branch, z. B. ein PR-Branch zum Testen |
 | `AGENT_DECK_REPO`     | `https://github.com/florianwilde/agent-deck.git` | Git-URL, z. B. ein Fork                    |
-| `AGENT_DECK_PORT`     | `8787`                                           | Port des Hubs                              |
+| `AGENT_DECK_PORT`     | `8787`                                           | Port des öffentlichen Listeners            |
+| `AGENT_DECK_VPN_PORT` | `8788`                                           | Port des VPN-Listeners (Plugin)            |
 
 ## Was im Container landet
 
-| Pfad                                                | Inhalt                                                                                                                    |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `/opt/agent-deck`                                   | Git-Checkout und Build                                                                                                    |
-| `/etc/agent-deck/hub.env`                           | Konfiguration inkl. `HUB_TOKEN` (`root:agentdeck`, `0640`). Wird bei `update` und erneutem `install` nicht überschrieben. |
-| `/var/lib/agent-deck`                               | SQLite-Datenbank                                                                                                          |
-| `agent-deck-hub.service`                            | systemd-Dienst, läuft als User `agentdeck`                                                                                |
-| `/usr/local/sbin/agent-deck-hub`, `/usr/bin/update` | Helfer für Update, Token und Status                                                                                       |
+| Pfad                                                | Inhalt                                                                                                                                        |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/opt/agent-deck`                                   | Git-Checkout und Build                                                                                                                        |
+| `/etc/agent-deck/hub.env`                           | Konfiguration inkl. `HUB_TOKEN` und `HUB_VPN_TOKEN` (`root:agentdeck`, `0640`). Wird bei `update` und erneutem `install` nicht überschrieben. |
+| `/var/lib/agent-deck`                               | SQLite-Datenbank                                                                                                                              |
+| `agent-deck-hub.service`                            | systemd-Dienst, läuft als User `agentdeck`                                                                                                    |
+| `/usr/local/sbin/agent-deck-hub`, `/usr/bin/update` | Helfer für Update, Token und Status                                                                                                           |
 
 ## Aufbau des Skripts
 
