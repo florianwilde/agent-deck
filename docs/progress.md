@@ -2,7 +2,7 @@
 
 Übersichtsseite: <https://claude.ai/artifact/WA2WWawMhNSggxxLnE1Ef8>. Die Daten dafür stehen in `docs/status.json`. Jede Session aktualisiert sie nach ihren Arbeitsschritten, lädt die Datei als Asset der Seite hoch und trägt die neue Asset-URL im Datensatz `tasks` ein.
 
-## Phase 1 – Hub, Hook und `agent-deck init` ✅ (PR offen)
+## Phase 1 – Hub, Hook und `agent-deck init` ✅ (gemergt, Hub im Normalbetrieb)
 
 ### Fertig
 
@@ -49,16 +49,26 @@
 | Rate-Limit        | 60/min pro IP                   | 60/min, per `HUB_RATE_LIMIT` änderbar                                  | Capture-Daten: max. 32 Events/min pro Cloud-IP, bei 31 statt jetzt 10 registrierten Events |
 | Body-Limit        | ≤ 4 KB                          | im Normalbetrieb fest 4096, `HUB_BODY_LIMIT` gilt nur noch für Capture | eine alte `hub.env` mit 256 KB soll das Limit nicht aushebeln                              |
 
-### Was du (Florian) tun musst
+### Inbetriebnahme (26.10.)
 
-Alles steht in [`docs/setup-hub.md`](setup-hub.md):
+- PR #3 gemergt (von Claude, auf Florians Wunsch).
+- Hub (LXC 125) mit `update` auf `b1d3a63` gebracht und mit `agent-deck-hub.sh normal` umgestellt. Die Capture-Datenbank ist gelöscht.
+- Von außen geprüft: `/health` meldet `"mode":"normal"`, `/capture` und `/state` geben öffentlich 404, ein ungültiges Event gibt 400.
+- Vom Windows-PC über den VPN-Port (`10.1.5.229:8788`) geprüft: `GET /state` liefert diese Cloud-Session mit `cse_`-ID, Repo, Branch, URL und Status `done`. Damit ist die Kette Hook → öffentlicher Listener → Status-Engine → SQLite → VPN-Listener im echten Betrieb bestätigt.
+- Nachträglich behoben, Anlass waren Stolpersteine bei der Inbetriebnahme:
+  - `agent-deck-hub` war in der Container-Shell nicht im `PATH`. Der Helper legt jetzt einen Link nach `/usr/local/bin` an.
+  - In `setup-hub.md` steht jetzt der volle Pfad und der Hinweis auf `curl.exe` in PowerShell.
 
-1. PR prüfen und mergen.
-2. Hub aktualisieren und auf `HUB_MODE=normal` umstellen (Schritt 2). Den VPN-Token für Phase 2 aufheben.
-3. **Capture-Daten löschen** (Schritt 3). Sie liegen noch auf dem Hub: Ich habe sie in dieser Session für die Rate-Limit-Abschätzung gezählt.
-4. NetBird: Port 8788 nur im VPN freigeben, der Reverse Proxy bleibt auf 8787 (Schritt 4).
-5. Test nach Schritt 6: neue Session → `working`, Rückfrage → `needs_input`, Ende → `done`.
-6. Phase 2 starten.
+### Offen
+
+- `needs_input` live: Claude kann den VPN-Port aus der Cloud nicht erreichen. Ein Test braucht deshalb einen Blick auf `/state` vom PC, während eine Session per `AskUserQuestion` fragt. Die Status-Engine dafür ist durch Tests abgedeckt, `PermissionRequest` kommt laut Phase 0 B in der Cloud zuverlässig. Phase 2 zeigt es ohnehin an der Taste.
+- Der VPN-Token stand teilweise im Chat (in einer PowerShell-Fehlermeldung). Er gilt nur im VPN. Florian kann ihn erneuern, Befehl siehe unten.
+
+### Was du (Florian) tun kannst
+
+1. Optional den VPN-Token erneuern:
+   `sed -i "s/^HUB_VPN_TOKEN=.*/HUB_VPN_TOKEN=$(openssl rand -hex 32)/" /etc/agent-deck/hub.env && systemctl restart agent-deck-hub`, danach `/usr/local/sbin/agent-deck-hub vpn-token`.
+2. Phase 2 starten. Den VPN-Token und `http://10.1.5.229:8788` brauchst du für den Property Inspector.
 
 ## Phase 0 B – Auswertung ✅ (gemergt)
 

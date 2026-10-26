@@ -197,8 +197,8 @@
       "phase_title": "Phase 0 B – Auswerten",
       "task": "Capture-Daten löschen",
       "owner": "Florian",
-      "status": "offen",
-      "note": "jetzt docs/setup-hub.md, Schritt 3; Daten liegen noch auf dem Hub",
+      "status": "fertig",
+      "note": "Datenbank im LXC 125 gelöscht, /capture gibt 404",
       "link": ""
     },
     {
@@ -257,8 +257,8 @@
       "phase_title": "Phase 1 – Hub, Hook und init",
       "task": "Hub auf HUB_MODE=normal umstellen",
       "owner": "Florian",
-      "status": "offen",
-      "note": "setup-hub.md, Schritt 2 (Proxmox: agent-deck-hub normal)",
+      "status": "fertig",
+      "note": "LXC 125 auf b1d3a63, /health meldet normal",
       "link": ""
     },
     {
@@ -287,8 +287,8 @@
       "phase_title": "Phase 1 – Hub, Hook und init",
       "task": "PR #3 mergen",
       "owner": "Florian",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "von Claude gemergt",
       "link": "https://github.com/florianwilde/agent-deck/pull/3"
     },
     {
@@ -297,8 +297,8 @@
       "phase_title": "Phase 1 – Hub, Hook und init",
       "task": "NetBird: VPN-Port 8788 freigeben",
       "owner": "Florian",
-      "status": "offen",
-      "note": "Reverse Proxy bleibt auf 8787",
+      "status": "fertig",
+      "note": "/state vom PC über 10.1.5.229:8788 erreichbar",
       "link": ""
     },
     {
@@ -308,7 +308,7 @@
       "task": "Test: Frage → needs_input, Ende → done",
       "owner": "Florian",
       "status": "offen",
-      "note": "setup-hub.md, Schritt 6",
+      "note": "done live bestätigt; needs_input zeigt Phase 2 an der Taste",
       "link": ""
     },
     {
