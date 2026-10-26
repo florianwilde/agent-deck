@@ -2,7 +2,58 @@
 
 Übersichtsseite: <https://claude.ai/artifact/WA2WWawMhNSggxxLnE1Ef8>. Die Daten dafür stehen in `docs/status.json`. Jede Session aktualisiert sie nach ihren Arbeitsschritten, lädt die Datei als Asset der Seite hoch und trägt die neue Asset-URL im Datensatz `tasks` ein.
 
-## Phase 0 A – Capture-Server und Test-Hook ✅ (PR offen)
+## Phase 0 B – Auswertung ✅ (PR offen)
+
+### Fertig
+
+- Capture-Daten abgerufen: 285 Events aus 5 Cloud-Sessions. Die fehlenden Szenarien aus `setup-phase-0.md` Schritt 5 hat diese Session selbst nachgeholt, mit drei Test-Sessions, die sie gestartet, unterbrochen und archiviert hat.
+- [`docs/cloud-findings.md`](cloud-findings.md): Events und Felder, Session-URL, Repo-Name, Notification-Typen, Werkzeuge, Abbruch, Queue-Test. Mit echten Payloads.
+- [`docs/event-mapping.md`](event-mapping.md): endgültiges Mapping Event → Status, Timeouts, Hook-Liste für Phase 1.
+- Queue-Test: `.claude/hooks/queue-test.sh` (Stop-Hook, synchron) plus Konsistenztest. Ergebnis in `docs/queue-test.md`. Der Hook bleibt vorerst drin und tut nichts, solange `.claude/queue-test-pending` fehlt.
+
+### Ergebnis in Kürze
+
+- **Sprung in die Session funktioniert.** Die URL ist `https://claude.ai/code/session_<id>`, die ID kommt aus env `CLAUDE_CODE_REMOTE_SESSION_ID` (`cse_<id>`). Die Payload-`session_id` ist eine andere UUID.
+- **Queue funktioniert.** `{"decision":"block","reason":…}` aus dem Stop-Hook lässt Claude ohne neuen Prompt weiterarbeiten. In der Oberfläche steht dann „Stop hook feedback: <reason>“. Geänderte Hooks wirken sofort, auch in einer laufenden Session.
+- **Nicht in der Cloud:** `SessionEnd` (auch nicht beim Archivieren), `idle_prompt` und ein Event nach dem Stopp-Knopf. `StopFailure` ist nur laut Doku belegt.
+
+### Was für die folgenden Phasen gilt
+
+- **Session-Key** ist `CLAUDE_CODE_REMOTE_SESSION_ID`. Fallback ohne die Variable: Payload-`session_id` als Key, die Taste öffnet `https://claude.ai/code`.
+- **Repo** aus `git remote get-url origin` (`owner/repo`), Fallback `basename $CLAUDE_PROJECT_DIR`.
+- **`needs_input`** kommt aus `PermissionRequest` (sofort) und `Notification`/`permission_prompt` (nach 6 s). In der Cloud fragt praktisch nur `AskUserQuestion` nach, `Bash` und `Write` liefen ohne Freigabe.
+- **Ignorieren:**
+  - `SubagentStop` ist der Prompt-Vorschlag, der nach fast jedem `Stop` kommt.
+  - `Setup` trägt eine fremde `session_id`.
+- **Reihenfolge:** Async-Hooks kommen ungeordnet an. Der Hook schickt deshalb seinen eigenen Zeitstempel mit, und der Hub verwirft ältere Events.
+- **Timeouts:**
+  - `working` → `idle` nach 10 Min. ohne Event, wegen des Abbruchs.
+  - Alles → `idle` nach 30 Min., als Ersatz für das fehlende `SessionEnd`.
+  - Archivierte Sessions bleiben also als `idle` stehen. Phase 2/4 braucht einen Weg, sie auszublenden (z. B. nach 24 h `idle` oder per Tastendruck).
+- **Stop-Hook (Phase 3):**
+  - läuft synchron, `timeout` ≤ 5;
+  - der Hub markiert ausgelieferte Einträge, damit nichts doppelt kommt;
+  - `stop_hook_active: true` ist kein Grund, nicht auszuliefern, Claude Code begrenzt die Kette selbst;
+  - der Plattform-Hook `~/.claude/stop-hook-git-check.sh` kann im selben `Stop` zusätzlich blockieren.
+- **Body-Größe:** Der echte Hook baut den Body selbst aus wenigen Feldern (≤ 4 KB) und schickt weder Payload noch env weiter.
+
+### Abweichungen von `CLAUDE.md`
+
+| Thema         | `CLAUDE.md`                                 | Ab jetzt                                                                | Grund                                  |
+| ------------- | ------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------- |
+| `needs_input` | nur `Notification`                          | zusätzlich `PermissionRequest`                                          | kommt 6 s früher                       |
+| `idle`        | `SessionEnd` oder 30 Min.                   | zusätzlich `working` → `idle` nach 10 Min.                              | `SessionEnd` und Abbruch-Events fehlen |
+| `async`       | alle Hooks außer Stop-Ausgabe `async: true` | `Stop` immer synchron                                                   | er muss die Queue abfragen             |
+| Session-ID    | –                                           | Key ist `CLAUDE_CODE_REMOTE_SESSION_ID`, nicht die Payload-`session_id` | nur sie ist die Web-ID                 |
+
+### Was du (Florian) tun musst
+
+1. PR prüfen und mergen.
+2. **Capture-Daten löschen** (`docs/setup-phase-0.md`, Schritt 7). Sie enthalten Prompts und Antworttexte. Bis Phase 1 schickt der Capture-Hook aus jeder Session in diesem Repo weiter alles an den Hub. Wenn du das nicht willst, stoppe den Hub bis dahin.
+3. Optional: Die drei archivierten Test-Sessions „agent-deck Capture-Test …“ in claude.ai/code löschen.
+4. Phase 1 starten.
+
+## Phase 0 A – Capture-Server und Test-Hook ✅ (gemergt)
 
 ### Fertig
 

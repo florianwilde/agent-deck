@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = join(import.meta.dirname, "..", "..", "..");
 const HOOK_COMMAND = "${CLAUDE_PROJECT_DIR}/.claude/hooks/agent-deck-capture.sh";
+const QUEUE_TEST_COMMAND = "${CLAUDE_PROJECT_DIR}/.claude/hooks/queue-test.sh";
 
 interface HookHandler {
   type: string;
@@ -44,6 +45,7 @@ describe(".claude/settings.json dieses Repos (Phase 0)", () => {
     for (const [event, groups] of Object.entries(settings.hooks)) {
       for (const handler of groups.flatMap((group) => group.hooks)) {
         expect(handler.type).toBe("command");
+        if (handler.command === QUEUE_TEST_COMMAND) continue;
         expect(handler.command).toBe(HOOK_COMMAND);
         if (event === "SessionEnd") {
           expect(handler.async).toBeUndefined();
@@ -53,6 +55,20 @@ describe(".claude/settings.json dieses Repos (Phase 0)", () => {
         }
       }
     }
+  });
+
+  it("der Queue-Test-Hook (Phase 0 B) hängt nur an Stop, synchron mit kurzem Timeout", () => {
+    for (const [event, groups] of Object.entries(settings.hooks)) {
+      const queueHandlers = groups
+        .flatMap((group) => group.hooks)
+        .filter((handler) => handler.command === QUEUE_TEST_COMMAND);
+      if (event !== "Stop") expect(queueHandlers, event).toHaveLength(0);
+    }
+    const stopQueue = settings.hooks.Stop?.flatMap((group) => group.hooks).find(
+      (handler) => handler.command === QUEUE_TEST_COMMAND,
+    );
+    expect(stopQueue?.async).toBeUndefined();
+    expect(stopQueue?.timeout).toBeLessThanOrEqual(5);
   });
 
   it("die Kopie in .claude/hooks/ entspricht packages/hook und ist ausführbar", () => {
