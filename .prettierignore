@@ -3,3 +3,4 @@ pnpm-lock.yaml
 **/data/
 CLAUDE.md
 docs/prompts/
+docs/design/

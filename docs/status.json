@@ -87,8 +87,8 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "PR #1 mergen",
       "owner": "Florian",
-      "status": "offen",
-      "note": "danach liegt der Proxmox-Helper auf main",
+      "status": "fertig",
+      "note": "gemergt; der Proxmox-Helper liegt jetzt auf main",
       "link": "https://github.com/florianwilde/agent-deck/pull/1"
     },
     {
@@ -107,8 +107,8 @@
       "phase_title": "Phase 0 A – Capture-Hub und Hook",
       "task": "Hub im Homelab starten",
       "owner": "Florian",
-      "status": "in Arbeit",
-      "note": "Proxmox-Helper, erster Versuch: 404, weil PR #1 noch nicht gemergt ist",
+      "status": "offen",
+      "note": "Proxmox-Helper erneut ausführen; der 404 kam vom noch nicht gemergten PR",
       "link": ""
     },
     {
@@ -249,6 +249,16 @@
       "owner": "Florian",
       "status": "offen",
       "note": "",
+      "link": ""
+    },
+    {
+      "id": "2-00",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Design-Dateien ins Repo legen (docs/design)",
+      "owner": "Florian",
+      "status": "fertig",
+      "note": "DESIGN.md, keys.js, mockups.html, 4 Screenshots",
       "link": ""
     },
     {
