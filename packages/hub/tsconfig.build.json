@@ -5,7 +5,8 @@
     "outDir": "dist",
     "noEmit": false,
     "allowImportingTsExtensions": true,
-    "rewriteRelativeImportExtensions": true
+    "rewriteRelativeImportExtensions": true,
+    "customConditions": []
   },
   "include": ["src"]
 }

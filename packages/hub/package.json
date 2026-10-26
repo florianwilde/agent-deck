@@ -5,16 +5,22 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "pnpm --filter @agent-deck/shared build && tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node dist/index.js",
-    "dev": "node --env-file-if-exists=.env --watch src/index.ts"
+    "dev": "node --conditions=source --env-file-if-exists=.env --watch src/index.ts"
   },
   "dependencies": {
+    "@agent-deck/shared": "workspace:*",
+    "@fastify/rate-limit": "^11.2.1",
     "better-sqlite3": "^13.0.3",
-    "fastify": "^5.12.7"
+    "fastify": "^5.12.7",
+    "pino": "^10.4.0",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^9.6.0"
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/ws": "^8.18.2"
   }
 }
