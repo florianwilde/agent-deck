@@ -30,8 +30,9 @@
   - Geprüft mit `tools/pi-check.mjs` gegen eine nachgestellte Stream-Deck-App (18 Prüfungen).
 - **End-to-End-Smoke-Test** (`tools/smoke.mjs`): das gebaute `bin/plugin.js`, ein echter Hub-Prozess und eine nachgestellte Stream-Deck-App. Durchgespielt: Taste zeigt die Session → Rot und Blinken bei `PermissionRequest` → Kurzdruck öffnet die Session → Langdruck quittiert → Gelb bei `Stop` → Hub weg ergibt `OFFLINE`. Der Token taucht weder in Nachrichten an Stream Deck noch im Plugin-Log auf.
 - **Packen:** `pnpm --filter @agent-deck/streamdeck-plugin run package` erzeugt `dist/de.wildeflorian.agentdeck.streamDeckPlugin` (ca. 220 KB).
-  - Das Release baut der neue Workflow `.github/workflows/plugin-release.yml`, ausgelöst vom Tag `plugin-v0.1.0`.
-  - Er erstellt ein Pre-Release mit der Datei, weil die GitHub-Werkzeuge dieser Session selbst kein Release anlegen können.
+  - Der neue Workflow `.github/workflows/plugin-release.yml` baut das Plugin bei jedem PR und legt die Datei als Artefakt ab.
+  - Bei einem Tag `plugin-v*` oder einem manuellen Start erstellt er ein Pre-Release mit der Datei.
+  - Den Umweg über einen Workflow braucht es, weil die GitHub-Werkzeuge dieser Session kein Release anlegen können und der Git-Proxy den Tag-Push abgelehnt hat.
 - **Hub-Fix:**
   - **Problem:** Solange ein WebSocket-Client verbunden war, hing `close()` des VPN-Listeners. Fastify wartet beim Schließen auf offene Verbindungen, der `onClose`-Hook kam zu spät. Folge im Betrieb: `systemctl restart` hätte bei verbundenem Plugin gehangen, bis systemd den Prozess abschießt.
   - **Lösung:** Aufräumen jetzt im `preClose`-Hook, dazu ein Test.
@@ -54,7 +55,9 @@
 
 ### Was du (Florian) tun musst
 
-1. **Release auslösen**, falls noch keins da ist: Der Tag `plugin-v0.1.0` startet den Workflow. Konnte ich ihn nicht pushen, steht das im PR. Dann unter _Actions → plugin-release → Run workflow_ mit `plugin-v0.1.0` starten (geht erst, wenn der Workflow auf `main` liegt).
+1. **Plugin herunterladen.**
+   - Vor dem Merge: im PR unter _Checks → plugin-release → Summary → Artifacts_, als ZIP mit der `.streamDeckPlugin`-Datei.
+   - Das Release `plugin-v0.1.0` lege ich nach dem Merge per manuellem Workflow-Start an. Das geht erst, wenn der Workflow auf `main` liegt. Du kannst es auch selbst unter _Actions → plugin-release → Run workflow_ mit `plugin-v0.1.0` starten.
 2. Das Plugin nach [`docs/setup-plugin.md`](setup-plugin.md) installieren, die Hub-URL `http://10.1.5.229:8788` und den VPN-Token eintragen und Tasten platzieren.
 3. **Am Stream Deck XL testen:**
    - Slots zeigen echte Sessions.

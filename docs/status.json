@@ -358,7 +358,7 @@
       "task": "Plugin packen (.streamDeckPlugin)",
       "owner": "Claude",
       "status": "fertig",
-      "note": "Release per Workflow und Tag plugin-v0.1.0",
+      "note": "PR-Artefakt; Release plugin-v0.1.0 nach Merge per Workflow",
       "link": ""
     },
     {
