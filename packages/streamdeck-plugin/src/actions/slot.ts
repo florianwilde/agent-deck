@@ -2,6 +2,7 @@ import streamDeck, {
   type DidReceiveSettingsEvent,
   type KeyDownEvent,
   type KeyUpEvent,
+  type PropertyInspectorDidAppearEvent,
   type SendToPluginEvent,
   SingletonAction,
   type WillAppearEvent,
@@ -25,6 +26,12 @@ export class SlotAction extends SingletonAction<SlotSettings> {
   override readonly manifestId = SLOT_ACTION_UUID;
   readonly #deck: Deck;
   readonly #hub: HubClient;
+  /**
+   * Anfragen eines Property Inspectors, der laut SDK noch nicht sichtbar ist. Stream Deck kann
+   * `sendToPlugin` vor `propertyInspectorDidAppear` liefern (die sdpi-datasource fragt gleich beim
+   * Laden), und `sendToPropertyInspector` verwirft Antworten bis dahin. Beantwortet beim Erscheinen.
+   */
+  readonly #pending = new Map<string, Set<PiToPlugin["event"]>>();
 
   constructor(deck: Deck, hub: HubClient) {
     super();
@@ -69,8 +76,29 @@ export class SlotAction extends SingletonAction<SlotSettings> {
   }
 
   override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, SlotSettings>): Promise<void> {
-    const message = ev.payload as PiToPlugin | null;
-    switch (message?.event) {
+    const event = (ev.payload as PiToPlugin | null)?.event;
+    if (event !== "getStatus" && event !== "testConnection" && event !== "repos") return;
+    if (streamDeck.ui.action?.id !== ev.action.id) {
+      const pending = this.#pending.get(ev.action.id) ?? new Set();
+      pending.add(event);
+      this.#pending.set(ev.action.id, pending);
+      return;
+    }
+    await this.#answer(event);
+  }
+
+  override async onPropertyInspectorDidAppear(
+    ev: PropertyInspectorDidAppearEvent<SlotSettings>,
+  ): Promise<void> {
+    const pending = this.#pending.get(ev.action.id);
+    this.#pending.clear();
+    // Den Status braucht ein frisch geöffneter Inspector immer, auch ohne Anfrage.
+    await send({ event: "status", status: this.#hub.status });
+    for (const event of pending ?? []) if (event !== "getStatus") await this.#answer(event);
+  }
+
+  async #answer(event: PiToPlugin["event"]): Promise<void> {
+    switch (event) {
       case "getStatus":
         await send({ event: "status", status: this.#hub.status });
         break;

@@ -186,6 +186,37 @@ try {
     "Taste 2 ist frei (leere Taste)",
   );
 
+  // Property Inspector: Stream Deck kann sendToPlugin schicken, bevor propertyInspectorDidAppear kommt
+  // (die sdpi-datasource fragt gleich beim Laden). Die Antwort darf dabei nicht verloren gehen.
+  const toPi = () => fromPlugin.filter((m) => m.event === "sendToPropertyInspector");
+  send({ event: "sendToPlugin", action: ACTION, context: "k1", payload: { event: "repos" } });
+  send({ event: "sendToPlugin", action: ACTION, context: "k1", payload: { event: "getStatus" } });
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  send({ event: "propertyInspectorDidAppear", action: ACTION, context: "k1", device: "XL" });
+  const repos = await until(() => toPi().find((m) => m.payload?.event === "repos"), "repos");
+  check(
+    repos?.context === "k1" && repos.payload.items?.[0]?.value === "florianwilde/agent-deck",
+    "Repo-Liste kommt an, auch wenn der PI vor propertyInspectorDidAppear fragt",
+  );
+  check(
+    !!toPi().find((m) => m.payload?.event === "status" && m.payload.status?.state === "connected"),
+    "Status kommt an (verbunden)",
+  );
+  send({
+    event: "sendToPlugin",
+    action: ACTION,
+    context: "k1",
+    payload: { event: "repos", isRefresh: true },
+  });
+  check(
+    !!(await until(
+      () => toPi().filter((m) => m.payload?.event === "repos").length >= 2,
+      "repos 2",
+    )),
+    "Repo-Liste bei offenem PI sofort",
+  );
+  send({ event: "propertyInspectorDidDisappear", action: ACTION, context: "k1", device: "XL" });
+
   await postEvent("PermissionRequest", { message: "AskUserQuestion" });
   check(
     !!(await until(() => images("k1").find((svg) => svg.includes("ANTWORT")), "Antwort-Bild")),

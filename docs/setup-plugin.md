@@ -1,5 +1,7 @@
 # Einrichtung Stream-Deck-Plugin (ab Phase 2)
 
+Bebilderte Fassung dieser Anleitung: <https://claude.ai/artifact/9FHVmb22KKuKg93hHYJH5C>
+
 Das Plugin zeigt die Cloud-Sessions als Tasten auf dem Stream Deck XL. Es verbindet sich über das VPN mit dem **VPN-Listener** des Hubs (`http://10.1.5.229:8788`, siehe [`setup-hub.md`](setup-hub.md)).
 
 ## Voraussetzungen
@@ -11,7 +13,7 @@ Das Plugin zeigt die Cloud-Sessions als Tasten auf dem Stream Deck XL. Es verbin
 ## 1. Installieren
 
 1. Die Datei **`de.wildeflorian.agentdeck.streamDeckPlugin`** herunterladen:
-   - vom GitHub-Release `plugin-v0.1.0` (Releases rechts auf der Repo-Seite), sobald es angelegt ist;
+   - vom GitHub-Release `plugin-v0.1.1` (Releases rechts auf der Repo-Seite), sobald es angelegt ist;
    - vor dem Merge aus dem Pull Request: _Checks → plugin-release → Summary → Artifacts_. GitHub liefert sie als ZIP, darin liegt die Datei.
 2. Doppelklick auf die Datei. Stream Deck fragt nach und installiert das Plugin.
 3. In der Aktionsliste rechts erscheint die Kategorie **agent-deck** mit der Aktion **Projekt-Slot**.
