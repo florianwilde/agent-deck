@@ -1,5 +1,7 @@
 # Einrichtung Stream-Deck-Plugin (ab Phase 2)
 
+Bebilderte Fassung dieser Anleitung: <https://claude.ai/artifact/9FHVmb22KKuKg93hHYJH5C>
+
 Das Plugin zeigt die Cloud-Sessions als Tasten auf dem Stream Deck XL. Es verbindet sich über das VPN mit dem **VPN-Listener** des Hubs (`http://10.1.5.229:8788`, siehe [`setup-hub.md`](setup-hub.md)).
 
 ## Voraussetzungen

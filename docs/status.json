@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26",
+  "updated": "2026-10-27",
   "rows": [
     {
       "id": "0A-01",
@@ -358,8 +358,8 @@
       "task": "Plugin packen (.streamDeckPlugin)",
       "owner": "Claude",
       "status": "fertig",
-      "note": "PR-Artefakt; Release plugin-v0.1.0 nach Merge per Workflow",
-      "link": ""
+      "note": "Pre-Release plugin-v0.1.0 mit .streamDeckPlugin",
+      "link": "https://github.com/florianwilde/agent-deck/releases/tag/plugin-v0.1.0"
     },
     {
       "id": "2-05",
@@ -369,7 +369,7 @@
       "owner": "Florian",
       "status": "offen",
       "note": "Rot bei Frage, Gelb bei fertig, Druck öffnet, Langdruck quittiert, Claude-App testen",
-      "link": ""
+      "link": "https://github.com/florianwilde/agent-deck/releases/tag/plugin-v0.1.0"
     },
     {
       "id": "2-06",
@@ -407,9 +407,19 @@
       "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
       "task": "PR mergen",
       "owner": "Florian",
-      "status": "offen",
-      "note": "",
+      "status": "fertig",
+      "note": "von Claude gemergt, auf Florians Wunsch",
       "link": "https://github.com/florianwilde/agent-deck/pull/5"
+    },
+    {
+      "id": "2-10",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Bebilderte Einrichtungsanleitung",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "Schritte mit Tastenbildern und Property-Inspector-Screenshots",
+      "link": "https://claude.ai/artifact/9FHVmb22KKuKg93hHYJH5C"
     },
     {
       "id": "3-01",
