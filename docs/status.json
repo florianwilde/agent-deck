@@ -358,8 +358,8 @@
       "task": "Plugin packen (.streamDeckPlugin)",
       "owner": "Claude",
       "status": "fertig",
-      "note": "Pre-Release plugin-v0.1.0 mit .streamDeckPlugin",
-      "link": "https://github.com/florianwilde/agent-deck/releases/tag/plugin-v0.1.0"
+      "note": "Pre-Release plugin-v0.1.1 (Fix Repo-Liste)",
+      "link": "https://github.com/florianwilde/agent-deck/releases/tag/plugin-v0.1.1"
     },
     {
       "id": "2-05",
@@ -368,8 +368,8 @@
       "task": "Am Stream Deck XL unter Windows testen",
       "owner": "Florian",
       "status": "offen",
-      "note": "Rot bei Frage, Gelb bei fertig, Druck öffnet, Langdruck quittiert, Claude-App testen",
-      "link": "https://github.com/florianwilde/agent-deck/releases/tag/plugin-v0.1.0"
+      "note": "Verbindung ok (2 Sessions); Repo-Liste war leer → in 0.1.1 behoben",
+      "link": "https://github.com/florianwilde/agent-deck/releases/tag/plugin-v0.1.1"
     },
     {
       "id": "2-06",
@@ -420,6 +420,16 @@
       "status": "fertig",
       "note": "Schritte mit Tastenbildern und Property-Inspector-Screenshots",
       "link": "https://claude.ai/artifact/9FHVmb22KKuKg93hHYJH5C"
+    },
+    {
+      "id": "2-11",
+      "phase": "2",
+      "phase_title": "Phase 2 – Stream-Deck-Plugin MVP",
+      "task": "Fix: Repo-Liste im Property Inspector leer (0.1.1)",
+      "owner": "Claude",
+      "status": "fertig",
+      "note": "PR #6 gemergt, Release plugin-v0.1.1",
+      "link": "https://github.com/florianwilde/agent-deck/pull/6"
     },
     {
       "id": "3-01",
