@@ -39,6 +39,13 @@
 - [`docs/setup-plugin.md`](setup-plugin.md): Installation unter Windows, VPN, Einstellungen, Bedienung, 24 Slots auf dem XL empfohlen (unterste Reihe frei für Phase 3/4), Fehlersuche.
 - Tests: 297 grün, davon Plugin 114 (Renderer 77, Belegung, Deck, Hub-Client) und Hub 77 (+1). Lint, Prettier und Typecheck sind grün.
 
+### Nachtrag 0.1.1 (Test am Gerät)
+
+- **Fehler:** Im Property Inspector ließ sich bei „Fest“ kein Repo auswählen, die Liste blieb leer.
+- **Ursache:** Stream Deck liefert die Anfrage des Inspectors (`sendToPlugin`) vor `propertyInspectorDidAppear`. Das SDK verwirft Antworten bis zu diesem Ereignis.
+- **Fix:** Das Plugin merkt sich solche Anfragen und beantwortet sie beim Erscheinen. Den Status schickt es dabei immer mit.
+- **Test:** `tools/smoke.mjs` prüft genau diese Reihenfolge. Vor dem Fix schlug er fehl, jetzt ist er grün.
+
 ### Abweichungen von `CLAUDE.md` bzw. dem Phasen-Prompt
 
 | Thema                    | `CLAUDE.md` / Prompt                     | Umgesetzt                                                                                           | Grund                                                                                                                                         |
